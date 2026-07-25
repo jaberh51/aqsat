@@ -39,6 +39,20 @@
   .cust{text-align:center}
   .amount{font-family:'Amiri',serif;font-size:3rem;font-weight:700;margin:14px 0 2px;letter-spacing:1px;display:flex;align-items:baseline;justify-content:center;gap:8px}
   .amount .cur{font-size:1.1rem;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:500;color:var(--gold)}
+  .writing{border-left:3px solid var(--accent);padding-left:2px;animation:penblink .5s step-end infinite}
+  @keyframes penblink{50%{border-color:transparent}}
+  .stamp{color:var(--accent);margin:16px auto 0;width:96px;height:96px;opacity:0;transform:scale(2.4) rotate(-18deg);transition:none}
+  .stamp.stamped{animation:stampdrop .5s cubic-bezier(.2,1.4,.4,1) forwards}
+  @keyframes stampdrop{
+    0%{opacity:0;transform:scale(2.4) rotate(-18deg)}
+    60%{opacity:.9;transform:scale(.92) rotate(-13deg)}
+    80%{transform:scale(1.04) rotate(-15deg)}
+    100%{opacity:.82;transform:scale(1) rotate(-14deg)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .writing{animation:none;border-left:none}
+    .stamp.stamped{animation:none;opacity:.82;transform:scale(1) rotate(-14deg)}
+  }
   .divider{border-top:1px dashed var(--line);margin:20px 0}
   .note-cust{font-size:.92rem;line-height:1.9;color:var(--ink);background:#fffdf8;border:1px dashed var(--gold);border-radius:4px;padding:12px 14px;text-align:center}
   .tbar{margin-top:22px;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
@@ -258,12 +272,41 @@ function renderCustomerView(amount, end, note, totalMs){
   if (!totalMs) totalMs = end - Date.now();
   document.getElementById('headTitle').textContent = 'نظام الأقساط';
   document.getElementById('headSub').textContent = '';
+  const amtStr = Number(amount).toLocaleString('ar');
   app.innerHTML = `
     <div class="cust" id="custView">
-      <div class="amount"><span>${Number(amount).toLocaleString('ar')}</span><span class="cur">دينار أردني</span></div>
+      <div class="amount"><span id="amtWrite" class="writing"></span><span class="cur">دينار أردني</span></div>
       ${note ? `<div class="divider"></div><div class="note-cust">${escapeHtml(note)}</div>` : ''}
+      <div class="stamp" id="stamp">
+        <svg viewBox="0 0 120 120" width="96" height="96">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="3"/>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="60" y="52" text-anchor="middle" font-family="Amiri, serif" font-size="15" font-weight="700" fill="currentColor">نظام</text>
+          <text x="60" y="74" text-anchor="middle" font-family="Amiri, serif" font-size="15" font-weight="700" fill="currentColor">الأقساط</text>
+          <path d="M28 88 Q60 100 92 88" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </div>
       <div class="tbar"><div class="tbar-fill" id="tbarFill"></div></div>
     </div>`;
+
+  // تأثير خط اليد: كتابة المبلغ رقمًا رقمًا مع قلم
+  const amtEl = document.getElementById('amtWrite');
+  const chars = [...amtStr];
+  let i = 0;
+  function writeNext(){
+    if (i < chars.length){
+      amtEl.textContent += chars[i];
+      i++;
+      setTimeout(writeNext, 140);
+    } else {
+      amtEl.classList.remove('writing');
+      // بعد انتهاء الكتابة، يهبط الختم
+      const stamp = document.getElementById('stamp');
+      if (stamp) setTimeout(()=> stamp.classList.add('stamped'), 250);
+    }
+  }
+  setTimeout(writeNext, 300);
+
   const fill = document.getElementById('tbarFill');
   function tick(){
     const left = end - Date.now();
