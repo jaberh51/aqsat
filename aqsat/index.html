@@ -249,7 +249,6 @@ async function openCustomer(id){
     const end = Date.now() + d.left;
     const tot = d.left;
     try { sessionStorage.setItem('s:' + id, JSON.stringify({a:d.a, end, m:d.m, tot})); } catch(e){}
-    try { history.replaceState(null, '', location.pathname); } catch(e){}
     renderCustomerView(d.a, end, d.m, tot);
   } catch(e){ app.innerHTML = '<div class="loading">لا يوجد اتصال بالإنترنت. حاول مجددًا.</div>'; }
 }
@@ -275,8 +274,8 @@ function renderCustomerView(amount, end, note, totalMs){
   tick();
 }
 function renderGone(){
-  try { sessionStorage.clear(); } catch(e){}
-  try { history.replaceState(null, '', location.pathname); } catch(e){}
+  const curId = location.hash.slice(1);
+  if (curId) markGone(curId);
   document.getElementById('headTitle').textContent = 'نظام الأقساط';
   document.getElementById('headSub').textContent = '';
   const r = REMINDERS[Math.floor(Math.random() * REMINDERS.length)];
