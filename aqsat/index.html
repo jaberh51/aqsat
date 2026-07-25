@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام الأقساط</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314332e'/%3E%3Cpath d='M30 22h40a4 4 0 0 1 4 4v52l-8-6-8 6-8-6-8 6-8-6-8 6V26a4 4 0 0 1 4-4z' fill='%23f7f3ea'/%3E%3Crect x='36' y='34' width='28' height='4' rx='2' fill='%238a7340'/%3E%3Crect x='36' y='44' width='28' height='4' rx='2' fill='%238a7340'/%3E%3Crect x='36' y='54' width='18' height='4' rx='2' fill='%23b4552d'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314332e'/%3E%3Cpath d='M30 22h40a4 4 0 0 1 4 4v52l-8-6-8 6-8-6-8 6-8-6-8 6V26a4 4 0 0 1 4-4z' fill='%23f7f3ea'/%3E%3Crect x='36' y='34' width='28' height='4' rx='2' fill='%238a7340'/%3E%3Crect x='36' y='44' width='28' height='4' rx='2' fill='%238a7340'/%3E%3Crect x='36' y='54' width='18' height='4' rx='2' fill='%23b4552d'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#14332e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14332e;
+    --paper:#f7f3ea;
+    --line:#d8cfbc;
+    --accent:#b4552d;
+    --gold:#8a7340;
+    --ok:#2c6e49;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'IBM Plex Sans Arabic',sans-serif;
+    background:var(--ink);
+    color:var(--paper);
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    background-image:radial-gradient(circle at 20% 10%, rgba(255,255,255,.04), transparent 40%);
+  }
+  .card{
+    width:100%;max-width:430px;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:6px;
+    box-shadow:0 24px 60px rgba(0,0,0,.45);
+    overflow:hidden;
+    position:relative;
+  }
+  .card::before,.card::after{
+    content:"";display:block;height:10px;
+    background-image:radial-gradient(circle at 8px -2px, transparent 7px, var(--paper) 8px);
+    background-size:16px 10px;background-position:center;
+  }
+  .card::before{transform:rotate(180deg)}
+  .head{
+    padding:26px 28px 14px;
+    border-bottom:1px dashed var(--line);
+    text-align:center;
+  }
+  .head h1{font-family:'Amiri',serif;font-size:1.45rem;letter-spacing:.5px}
+  .head p{font-size:.78rem;color:var(--gold);margin-top:4px;font-weight:500}
+  .body{padding:24px 28px 30px}
+
+  label{display:block;font-size:.8rem;font-weight:500;color:var(--gold);margin:14px 0 6px}
+  input,select{
+    width:100%;padding:11px 13px;
+    border:1px solid var(--line);border-radius:4px;
+    background:#fffdf8;font:inherit;font-size:1rem;color:var(--ink);
+  }
+  input:focus,select:focus{outline:2px solid var(--ink);outline-offset:1px}
+  .row{display:flex;gap:10px}
+  .row > div{flex:1}
+  button{
+    width:100%;margin-top:22px;padding:13px;
+    background:var(--ink);color:var(--paper);
+    border:none;border-radius:4px;
+    font:inherit;font-size:1rem;font-weight:700;cursor:pointer;
+    transition:transform .1s;
+  }
+  button:active{transform:scale(.98)}
+  button:disabled{opacity:.6;cursor:wait}
+  button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  .linkbox{
+    margin-top:18px;display:none;
+    border:1px dashed var(--gold);border-radius:4px;
+    padding:14px;background:#fffdf8;
+  }
+  .linkbox.show{display:block}
+  .linkbox .url{
+    font-size:.82rem;direction:ltr;text-align:left;
+    word-break:break-all;color:#555;
+    margin-bottom:10px;cursor:pointer;
+  }
+  .copybtn{margin-top:0;background:var(--ok)}
+  .wabtn{margin-top:8px;background:#128c4b}
+  .newbtn{margin-top:8px;background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .hint{font-size:.72rem;color:#7a7060;margin-top:10px;line-height:1.7}
+
+  .cust{text-align:center}
+  .amount{
+    font-family:'Amiri',serif;
+    font-size:3rem;font-weight:700;
+    margin:14px 0 2px;letter-spacing:1px;
+    display:flex;align-items:baseline;justify-content:center;gap:8px;
+  }
+  .amount .cur{font-size:1.1rem;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:500;color:var(--gold)}
+  .divider{border-top:1px dashed var(--line);margin:20px 0}
+  .note-cust{
+    font-size:.92rem;line-height:1.9;color:var(--ink);
+    background:#fffdf8;border:1px dashed var(--gold);
+    border-radius:4px;padding:12px 14px;text-align:center;
+  }
+  .tbar{
+    margin-top:22px;height:4px;border-radius:2px;
+    background:var(--line);overflow:hidden;
+  }
+  .tbar-fill{
+    height:100%;width:100%;border-radius:2px;
+    background:linear-gradient(90deg, var(--gold), var(--accent));
+    transition:width 1s linear;
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%,60%{transform:translateX(-6px)}
+    40%,80%{transform:translateX(6px)}
+  }
+  .shake{animation:shake .35s}
+
+  .expired{text-align:center;padding:10px 0 4px}
+  .expired .x{
+    width:64px;height:64px;margin:0 auto 16px;border-radius:50%;
+    border:2px solid var(--accent);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+  }
+  .expired h2{font-family:'Amiri',serif;font-size:1.4rem;margin-bottom:8px}
+  .expired p{font-size:.85rem;color:#7a7060;line-height:1.9}
+  .reminder{margin-top:24px;padding:18px 16px;border-top:1px dashed var(--line)}
+  .reminder .rtext{font-family:'Amiri',serif;font-size:1.15rem;line-height:2.1;color:var(--ink)}
+  .reminder .rsrc{font-size:.72rem;color:var(--gold);margin-top:8px;font-weight:500}
+
+  .loading{text-align:center;padding:30px 0;color:#7a7060;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head">
+    <h1 id="headTitle">نظام الأقساط</h1>
+    <p id="headSub"></p>
+  </div>
+  <div class="body" id="app"></div>
+</div>
+
+<script>
+/* ردع الوصول للكود */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.key.toUpperCase();
+  if (e.key === 'F12' ||
+      (e.ctrlKey && k === 'U') ||
+      (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'J' || k === 'C')) ||
+      (e.metaKey && e.altKey && (k === 'I' || k === 'J' || k === 'C')) ||
+      (e.metaKey && k === 'U')) {
+    e.preventDefault();
+  }
+});
+window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+
+const app = document.getElementById('app');
+let sessionPin = '';
+
+const REMINDERS = [
+  {t:'﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا﴾', s:'سورة النساء – آية 58'},
+  {t:'﴿فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ﴾', s:'سورة البقرة – آية 283'},
+  {t:'قال رسول الله ﷺ: «خَيْرُكُمْ أَحْسَنُكُمْ قَضَاءً»', s:'متفق عليه'},
+  {t:'قال رسول الله ﷺ: «مَطْلُ الْغَنِيِّ ظُلْمٌ»', s:'متفق عليه'},
+  {t:'قال رسول الله ﷺ: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ»', s:'رواه البخاري'},
+  {t:'قال رسول الله ﷺ: «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ»', s:'رواه الترمذي'}
+];
+
+const id = location.hash.slice(1);
+if (id) { openCustomer(id); } else { renderLock(); }
+
+/* ========= صفحة الزبون ========= */
+async function openCustomer(id){
+  // دعم التحديث: بيانات العرض محفوظة مؤقتًا في التبويب فلا تُستهلك فتحة جديدة
+  let stash = null;
+  try { stash = JSON.parse(sessionStorage.getItem('s:' + id)); } catch(e){}
+  if (stash && Date.now() < stash.end){
+    renderCustomerView(stash.a, stash.end, stash.m, stash.tot);
+    return;
+  }
+  // علامة انتهاء سابق في هذا التبويب
+  try { if (sessionStorage.getItem('x:' + id) === '1'){ renderGone(); return; } } catch(e){}
+
+  app.innerHTML = '<div class="loading">جارٍ التحميل...</div>';
+  try {
+    const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id), {cache:'no-store'});
+    if (res.status === 410){ markGone(id); renderGone(); return; }
+    if (!res.ok){ renderGone(); return; }
+    const d = await res.json();
+    const end = Date.now() + d.left;
+    const tot = d.left;
+    try { sessionStorage.setItem('s:' + id, JSON.stringify({a:d.a, end, m:d.m, tot})); } catch(e){}
+    try { history.replaceState(null, '', location.pathname); } catch(e){}
+    renderCustomerView(d.a, end, d.m, tot);
+  } catch(e){
+    app.innerHTML = '<div class="loading">لا يوجد اتصال بالإنترنت. حاول مجددًا.</div>';
+  }
+}
+
+function markGone(id){
+  try {
+    sessionStorage.removeItem('s:' + id);
+    sessionStorage.setItem('x:' + id, '1');
+  } catch(e){}
+}
+
+function renderCustomerView(amount, end, note, totalMs){
+  if (Date.now() >= end){ renderGone(); return; }
+  if (!totalMs) totalMs = end - Date.now();
+  document.getElementById('headTitle').textContent = 'نظام الأقساط';
+  document.getElementById('headSub').textContent = '';
+  app.innerHTML = `
+    <div class="cust" id="custView">
+      <div class="amount"><span>${Number(amount).toLocaleString('ar')}</span><span class="cur">دينار أردني</span></div>
+      ${note ? `<div class="divider"></div><div class="note-cust">${escapeHtml(note)}</div>` : ''}
+      <div class="tbar"><div class="tbar-fill" id="tbarFill"></div></div>
+    </div>`;
+  const fill = document.getElementById('tbarFill');
+  function tick(){
+    const left = end - Date.now();
+    if (left <= 0){
+      const v = document.getElementById('custView');
+      if (v) v.classList.add('fade-out');
+      setTimeout(renderGone, 400);
+      return;
+    }
+    if (fill) fill.style.width = Math.max(0, (left / totalMs) * 100) + '%';
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+function renderGone(){
+  const curId = location.hash.slice(1);
+  if (curId) markGone(curId);
+  try { history.replaceState(null, '', location.pathname); } catch(e){}
+  document.getElementById('headTitle').textContent = 'نظام الأقساط';
+  document.getElementById('headSub').textContent = '';
+  const r = REMINDERS[Math.floor(Math.random() * REMINDERS.length)];
+  app.innerHTML = `
+    <div class="expired">
+      <div class="x">✕</div>
+      <h2>هذا الرابط لم يعد متاحًا</h2>
+      <p>يرجى طلب رابط جديد من المحل.</p>
+      <div class="reminder">
+        <div class="rtext">${r.t}</div>
+        <div class="rsrc">${r.s}</div>
+      </div>
+    </div>`;
+}
+
+/* ========= شاشة القفل ========= */
+function renderLock(){
+  document.getElementById('headSub').textContent = 'صفحة خاصة بالمحل';
+  app.innerHTML = `
+    <label>أدخل الرمز السري</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off"
+      style="text-align:center;letter-spacing:8px;font-size:1.4rem" maxlength="30">
+    <div id="pinErr" style="color:var(--accent);font-size:.8rem;margin-top:8px;display:none"></div>
+    <button id="pinBtn" onclick="checkPin()">دخول</button>`;
+  const pin = document.getElementById('pin');
+  pin.focus();
+  pin.addEventListener('keydown', e => { if(e.key === 'Enter') checkPin(); });
+}
+
+async function checkPin(){
+  const err = document.getElementById('pinErr');
+  const btn = document.getElementById('pinBtn');
+  const pinEl = document.getElementById('pin');
+  const val = pinEl.value;
+  if (!val) return;
+  btn.disabled = true; btn.textContent = 'جارٍ التحقق...';
+  try {
+    const res = await fetch('/.netlify/functions/create', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pin: val, check: true})
+    });
+    btn.disabled = false; btn.textContent = 'دخول';
+    if (res.ok){
+      sessionPin = val;
+      renderMerchant();
+    } else if (res.status === 429){
+      err.textContent = 'محاولات كثيرة. حاول بعد 5 دقائق';
+      err.style.display = 'block';
+      shakePin(pinEl);
+    } else {
+      err.textContent = 'الرمز غير صحيح';
+      err.style.display = 'block';
+      pinEl.value = '';
+      shakePin(pinEl);
+      pinEl.focus();
+    }
+  } catch(e){
+    btn.disabled = false; btn.textContent = 'دخول';
+    err.textContent = 'تعذر الاتصال بالخادم';
+    err.style.display = 'block';
+  }
+}
+
+function shakePin(el){
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+/* ========= صفحة التاجر ========= */
+function renderMerchant(){
+  document.getElementById('headSub').textContent = 'نظام الأقساط';
+  app.innerHTML = `
+    <label>المبلغ المتبقي (دينار أردني)</label>
+    <input id="camount" type="number" inputmode="decimal" placeholder="0" min="0.01" max="1000000" step="0.01">
+    <label>ملاحظة للزبون (اختياري)</label>
+    <input id="cnote" placeholder="مثال: القسط القادم يوم 15 من الشهر" maxlength="120">
+    <div class="row">
+      <div>
+        <label>مدة العرض</label>
+        <select id="cmin">
+          <option value="5">5 دقائق</option>
+          <option value="10">10 دقائق</option>
+          <option value="30">30 دقيقة</option>
+          <option value="60">ساعة واحدة</option>
+        </select>
+      </div>
+      <div>
+        <label>عدد مرات الفتح</label>
+        <select id="copens">
+          <option value="1">مرة واحدة فقط</option>
+          <option value="2">مرتان</option>
+        </select>
+      </div>
+    </div>
+    <button id="mkBtn" onclick="makeLink()">إنشاء الرابط</button>
+    <div class="linkbox" id="lb">
+      <div class="url" id="url" onclick="selectUrl(this)" title="اضغط لتحديد الرابط"></div>
+      <button class="copybtn" onclick="copyLink()">نسخ الرابط لإرساله للزبون</button>
+      <button class="wabtn" onclick="shareWhatsApp()">إرسال مباشرة عبر واتساب</button>
+      <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
+      <div class="hint">⏱ يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة أو استهلاك مرات الفتح — أيهما أسبق.</div>
+    </div>`;
+}
+
+function resetForm(){
+  document.getElementById('camount').value = '';
+  document.getElementById('cnote').value = '';
+  generated = '';
+  document.getElementById('lb').classList.remove('show');
+  document.getElementById('camount').focus();
+}
+
+let generated = '';
+async function makeLink(){
+  const raw = document.getElementById('camount').value.trim();
+  const amount = Number(raw);
+  if (!raw || !isFinite(amount)){ alert('أدخل مبلغًا صحيحًا'); return; }
+  if (amount <= 0){ alert('المبلغ يجب أن يكون أكبر من صفر'); return; }
+  if (amount > 1000000){ alert('المبلغ يتجاوز الحد المسموح'); return; }
+  const btn = document.getElementById('mkBtn');
+  btn.disabled = true; btn.textContent = 'جارٍ الإنشاء...';
+  try {
+    const res = await fetch('/.netlify/functions/create', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        pin: sessionPin,
+        amount: amount,
+        note: document.getElementById('cnote').value.trim(),
+        minutes: parseInt(document.getElementById('cmin').value),
+        maxOpens: parseInt(document.getElementById('copens').value)
+      })
+    });
+    btn.disabled = false; btn.textContent = 'إنشاء الرابط';
+    if (!res.ok){
+      if (res.status === 401){ alert('انتهت الجلسة، أعد الدخول'); location.reload(); return; }
+      alert('تعذر إنشاء الرابط، حاول مجددًا');
+      return;
+    }
+    const out = await res.json();
+    generated = location.origin + '/#' + out.id;
+    document.getElementById('url').textContent = generated;
+    document.getElementById('lb').classList.add('show');
+  } catch(e){
+    btn.disabled = false; btn.textContent = 'إنشاء الرابط';
+    alert('تعذر الاتصال بالخادم');
+  }
+}
+
+function copyLink(){
+  const done = () => {
+    const b = document.querySelector('.copybtn');
+    b.textContent = '✓ تم النسخ';
+    setTimeout(()=> b.textContent = 'نسخ الرابط لإرساله للزبون', 2000);
+  };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = generated;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); done(); }
+    catch(e){ alert('انسخ الرابط يدويًا من المربع أعلاه'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(generated).then(done).catch(fallback);
+  } else { fallback(); }
+}
+
+function shareWhatsApp(){
+  window.open('https://wa.me/?text=' + encodeURIComponent('كشف المبلغ المتبقي:\n' + generated), '_blank');
+}
+
+function selectUrl(el){
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>
