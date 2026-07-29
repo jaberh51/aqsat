@@ -19,7 +19,6 @@ exports.handler = async (event) => {
     const store = getStore('installments');
     const dataRaw = await store.get(id);
 
-    // إذا كان الرابط غير موجود أو محذوف
     if (!dataRaw) {
       return { statusCode: 410, headers, body: JSON.stringify({ error: 'Expired or Gone' }) };
     }
@@ -31,38 +30,46 @@ exports.handler = async (event) => {
       return { statusCode: 410, headers, body: JSON.stringify({ error: 'Corrupt Data' }) };
     }
 
-    // حساب الوقت المتبقي
     const now = Date.now();
-    const left = data.exp - now;
+    
+    // دعم كافة أسماء الحقول المحتملة لتاريخ الانتهاء لمنع الخطأ
+    let expireTime = data.exp || data.expiresAt || data.expires;
+    if (!expireTime && data.createdAt && data.minutes) {
+      expireTime = data.createdAt + (data.minutes * 60 * 1000);
+    }
+
+    // إذا لم نجد تاريخ انتهاء إطلاقاً، نضع افتراضياً 30 دقيقة للأمان
+    if (!expireTime) {
+      expireTime = now + (30 * 60 * 1000);
+    }
+
+    const left = expireTime - now;
 
     if (left <= 0) {
-      await store.delete(id); // مسح البيانات عند الانتهاء
+      await store.delete(id);
       return { statusCode: 410, headers, body: JSON.stringify({ error: 'Expired' }) };
     }
 
-    // إدارة التوكن والتأكد من فتح الرابط على نفس الجهاز
-    if (!data.token) {
-      // المرة الأولى: تسجيل التوكن للجهاز
+    // التحقق من التوكن بدون القضاء على الجلسة
+    if (!data.token && clientToken) {
       data.token = clientToken;
       await store.set(id, JSON.stringify(data));
-    } else if (data.token !== clientToken) {
-      // إذا فتح من جهاز مختلف
+    } else if (data.token && clientToken && data.token !== clientToken) {
       return { statusCode: 403, headers, body: JSON.stringify({ error: 'Device Mismatch' }) };
     }
 
-    // إرجاع البيانات بنجاح (المرة الأولى والمرة الثانية)
+    // إرجاع البيانات لدعم أكثر من اسم للمبلغ والملاحظة
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
-        a: data.amount,
-        m: data.note || '',
+        a: data.amount !== undefined ? data.amount : data.a,
+        m: data.note !== undefined ? data.note : (data.m || ''),
         left: left
       })
     };
 
   } catch (err) {
-    // حماية الدالة من الانهيار
     return {
       statusCode: 500,
       headers,
