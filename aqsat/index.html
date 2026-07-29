@@ -55,9 +55,7 @@
   }
   .divider{border-top:1px dashed var(--line);margin:20px 0}
   .note-cust{font-size:.92rem;line-height:1.9;color:var(--ink);background:#fffdf8;border:1px dashed var(--gold);border-radius:4px;padding:12px 14px;text-align:center}
-  .tbar-container{margin-top:22px}
-  .tbar-timer{font-size:.75rem;color:var(--gold);margin-bottom:6px;text-align:center;font-weight:500}
-  .tbar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+  .tbar{margin-top:22px;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
   .tbar-fill{height:100%;width:100%;border-radius:2px;background:linear-gradient(90deg, var(--gold), var(--accent));transition:width 1s linear}
   @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
   .shake{animation:shake .35s}
@@ -96,20 +94,167 @@ function setHead(title, sub){
 }
 let sessionPin = '';
 const REMINDERS = [
-  {"t": "﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا﴾", "s": "سورة النساء – آية 58"},
-  {"t": "﴿فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ﴾", "s": "سورة البقرة – آية 283"},
-  {"t": "﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾", "s": "سورة المائدة – آية 1"},
-  {"t": "﴿وَأَوْفُوا بِالْعَهْدِ ۖ إِنَّ الْعَهْدَ كَانَ مَسْئُولًا﴾", "s": "سورة الإسراء – آية 34"},
-  {"t": "﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ﴾", "s": "سورة البقرة – آية 188"},
-  {"t": "﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ﴾", "s": "سورة البقرة – آية 280"},
-  {"t": "قال رسول الله ﷺ: «مَطْلُ الْغَنِيِّ ظُلْمٌ»", "s": "متفق عليه"},
-  {"t": "قال رسول الله ﷺ: «خَيْرُكُمْ أَحْسَنُكُمْ قَضَاءً»", "s": "متفق عليه"},
-  {"t": "قال رسول الله ﷺ: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ»", "s": "رواه البخاري"},
-  {"t": "قال رسول الله ﷺ: «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى»", "s": "رواه البخاري"},
-  {"t": "قال رسول الله ﷺ: «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ»", "s": "رواه الترمذي"},
-  {"t": "قال رسول الله ﷺ: «أَدِّ الْأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ، وَلَا تَخُنْ مَنْ خَانَكَ»", "s": "رواه أبو داود"}
+  {
+    "t": "﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا﴾",
+    "s": "سورة النساء – آية 58"
+  },
+  {
+    "t": "﴿فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ﴾",
+    "s": "سورة البقرة – آية 283"
+  },
+  {
+    "t": "﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾",
+    "s": "سورة المائدة – آية 1"
+  },
+  {
+    "t": "﴿وَأَوْفُوا بِالْعَهْدِ ۖ إِنَّ الْعَهْدَ كَانَ مَسْئُولًا﴾",
+    "s": "سورة الإسراء – آية 34"
+  },
+  {
+    "t": "﴿وَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ بِالْقِسْطِ﴾",
+    "s": "سورة الأنعام – آية 152"
+  },
+  {
+    "t": "﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ﴾",
+    "s": "سورة البقرة – آية 188"
+  },
+  {
+    "t": "﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ﴾",
+    "s": "سورة البقرة – آية 280"
+  },
+  {
+    "t": "﴿وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ﴾",
+    "s": "سورة البقرة – آية 280"
+  },
+  {
+    "t": "﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ﴾",
+    "s": "سورة المائدة – آية 2"
+  },
+  {
+    "t": "﴿يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَقُولُوا قَوْلًا سَدِيدًا﴾",
+    "s": "سورة الأحزاب – آية 70"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَطْلُ الْغَنِيِّ ظُلْمٌ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «خَيْرُكُمْ أَحْسَنُكُمْ قَضَاءً»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ»",
+    "s": "رواه البخاري"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ»",
+    "s": "رواه البخاري"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «آيَةُ الْمُنَافِقِ ثَلَاثٌ: إِذَا حَدَّثَ كَذَبَ، وَإِذَا وَعَدَ أَخْلَفَ، وَإِذَا اؤْتُمِنَ خَانَ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «الدِّينُ النَّصِيحَةُ»",
+    "s": "رواه مسلم"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «إِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ، وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى»",
+    "s": "رواه البخاري"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ نَفَّسَ عَنْ مُؤْمِنٍ كُرْبَةً نَفَّسَ اللَّهُ عَنْهُ كُرْبَةً مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ»",
+    "s": "رواه مسلم"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «وَاللَّهُ فِي عَوْنِ الْعَبْدِ مَا كَانَ الْعَبْدُ فِي عَوْنِ أَخِيهِ»",
+    "s": "رواه مسلم"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «كُلُّ الْمُسْلِمِ عَلَى الْمُسْلِمِ حَرَامٌ: دَمُهُ وَمَالُهُ وَعِرْضُهُ»",
+    "s": "رواه مسلم"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «لَا يَحِلُّ مَالُ امْرِئٍ مُسْلِمٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ»",
+    "s": "رواه أحمد"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «التَّاجِرُ الصَّدُوقُ الْأَمِينُ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ»",
+    "s": "رواه الترمذي"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ كَانَتْ لَهُ مَظْلَمَةٌ لِأَخِيهِ فَلْيَتَحَلَّلْهُ مِنْهَا»",
+    "s": "رواه البخاري"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا»",
+    "s": "رواه الترمذي"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ»",
+    "s": "رواه الترمذي"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ أَنْظَرَ مُعْسِرًا أَوْ وَضَعَ عَنْهُ أَظَلَّهُ اللَّهُ فِي ظِلِّهِ»",
+    "s": "رواه مسلم"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ صَدَقَةٌ»",
+    "s": "رواه أحمد"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «كَانَ تَاجِرٌ يُدَايِنُ النَّاسَ، فَإِذَا رَأَى مُعْسِرًا قَالَ لِفِتْيَانِهِ: تَجَاوَزُوا عَنْهُ، فَتَجَاوَزَ اللَّهُ عَنْهُ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «أَدِّ الْأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ، وَلَا تَخُنْ مَنْ خَانَكَ»",
+    "s": "رواه أبو داود"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «الظُّلْمُ ظُلُمَاتٌ يَوْمَ الْقِيَامَةِ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ حَلَفَ عَلَى يَمِينٍ لِيَقْتَطِعَ بِهَا مَالَ امْرِئٍ مُسْلِمٍ لَقِيَ اللَّهَ وَهُوَ عَلَيْهِ غَضْبَانُ»",
+    "s": "متفق عليه"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «إِنَّ التَّاجِرَ يُبْعَثُ يَوْمَ الْقِيَامَةِ فَاجِرًا إِلَّا مَنِ اتَّقَى اللَّهَ وَبَرَّ وَصَدَقَ»",
+    "s": "رواه الترمذي"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «الصُّلْحُ جَائِزٌ بَيْنَ الْمُسْلِمِينَ إِلَّا صُلْحًا حَرَّمَ حَلَالًا أَوْ أَحَلَّ حَرَامًا»",
+    "s": "رواه الترمذي"
+  },
+  {
+    "t": "قال رسول الله ﷺ: «مَنْ لَا يَشْكُرُ النَّاسَ لَا يَشْكُرُ اللَّهَ»",
+    "s": "رواه الترمذي"
+  }
 ];
-
 window.addEventListener('error', function(ev){
   try {
     if (document.getElementById('errBox')) return;
@@ -120,7 +265,6 @@ window.addEventListener('error', function(ev){
     document.body.appendChild(box);
   } catch(e){}
 });
-
 const id = location.hash.slice(1);
 try {
   if (id) { openCustomer(id); } else { renderLock(); }
@@ -149,22 +293,11 @@ function getDeviceToken(id){
   }
 }
 
-/* === بداية الدوال المعدلة === */
 async function openCustomer(id){
-  try { 
-    if (sessionStorage.getItem('x:' + id) === '1'){ 
-      renderGone(); 
-      return; 
-    } 
-  } catch(e){}
-  
-  if (hasDeviceToken(id)) { 
-    revealAmount(id, true); 
-  } else { 
-    renderRevealGate(id); 
-  }
+  try { if (sessionStorage.getItem('x:' + id) === '1'){ renderGone(); return; } } catch(e){}
+  if (hasDeviceToken(id)) { revealAmount(id, true); }
+  else { renderRevealGate(id); }
 }
-
 function renderRevealGate(id){
   setHead('نظام الأقساط', '');
   app.innerHTML = `
@@ -174,64 +307,28 @@ function renderRevealGate(id){
       <button id="revealBtn" onclick="revealAmount('${id}')" style="width:100%">اضغط لعرض المبلغ</button>
     </div>`;
 }
-
 let revealing = false;
 async function revealAmount(id, silent){
   if (revealing) return;
   revealing = true;
-  
   const btn = document.getElementById('revealBtn');
-  if (silent){ 
-    app.innerHTML = '<div class="loading">جارٍ التحميل...</div>'; 
-  } else if (btn){ 
-    btn.disabled = true; 
-    btn.textContent = 'جارٍ التحميل...'; 
-    btn.style.pointerEvents = 'none'; 
-  }
-  
+  if (silent){ app.innerHTML = '<div class="loading">جارٍ التحميل...</div>'; }
+  else if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; btn.style.pointerEvents = 'none'; }
   const token = getDeviceToken(id);
-  
   try {
     const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id) + '&t=' + encodeURIComponent(token), {cache:'no-store'});
-    
-    if (res.status === 403){ 
-      revealing = false; 
-      renderDeviceMismatch(); 
-      return; 
-    }
-    if (res.status === 410){ 
-      revealing = false;
-      markGone(id); 
-      renderGone(); 
-      return; 
-    }
-    if (!res.ok){ 
-      revealing = false;
-      renderGone(); 
-      return; 
-    }
-    
+    if (res.status === 403){ revealing = false; renderDeviceMismatch(); return; }
+    if (res.status === 410){ markGone(id); renderGone(); return; }
+    if (!res.ok){ renderGone(); return; }
     const d = await res.json();
-    
-    if (!d || d.a === undefined || d.left === undefined || d.left <= 0) {
-      revealing = false;
-      markGone(id);
-      renderGone();
-      return;
-    }
-
     const end = Date.now() + d.left;
-    revealing = false;
     renderCustomerView(d.a, end, d.m, d.left);
-
   } catch(e){
     revealing = false;
-    renderRevealGate(id);
-    app.insertAdjacentHTML('beforeend', '<p style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:10px">تعذر التحميل. اضغط الزر للمحاولة مجددًا.</p>');
+    if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; btn.style.pointerEvents = ''; }
+    app.insertAdjacentHTML('beforeend', '<p style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:10px">لا يوجد اتصال بالإنترنت. حاول مجددًا.</p>');
   }
 }
-/* === نهاية الدوال المعدلة === */
-
 function markGone(id){ try { sessionStorage.setItem('x:' + id, '1'); localStorage.removeItem('dev:' + id); } catch(e){} }
 function renderDeviceMismatch(){
   setHead('نظام الأقساط', '');
@@ -260,12 +357,10 @@ function renderCustomerView(amount, end, note, totalMs){
           <path d="M28 88 Q60 100 92 88" fill="none" stroke="currentColor" stroke-width="1.5"/>
         </svg>
       </div>
-      <div class="tbar-container">
-        <div class="tbar-timer" id="timerTxt">--:--</div>
-        <div class="tbar"><div class="tbar-fill" id="tbarFill"></div></div>
-      </div>
+      <div class="tbar"><div class="tbar-fill" id="tbarFill"></div></div>
     </div>`;
 
+  // تأثير خط اليد: كتابة المبلغ رقمًا رقمًا مع قلم
   const amtEl = document.getElementById('amtWrite');
   const chars = [...amtStr];
   let i = 0;
@@ -276,6 +371,7 @@ function renderCustomerView(amount, end, note, totalMs){
       setTimeout(writeNext, 140);
     } else {
       amtEl.classList.remove('writing');
+      // بعد انتهاء الكتابة، يهبط الختم
       const stamp = document.getElementById('stamp');
       if (stamp) setTimeout(()=> stamp.classList.add('stamped'), 250);
     }
@@ -283,24 +379,10 @@ function renderCustomerView(amount, end, note, totalMs){
   setTimeout(writeNext, 300);
 
   const fill = document.getElementById('tbarFill');
-  const timerTxt = document.getElementById('timerTxt');
-
   function tick(){
     const left = end - Date.now();
-    if (left <= 0){ 
-      const v = document.getElementById('custView'); 
-      if (v) v.classList.add('fade-out'); 
-      setTimeout(renderGone, 400); 
-      return; 
-    }
-    
+    if (left <= 0){ const v = document.getElementById('custView'); if (v) v.classList.add('fade-out'); setTimeout(renderGone, 400); return; }
     if (fill) fill.style.width = Math.max(0, (left / totalMs) * 100) + '%';
-    if (timerTxt) {
-      const totalSec = Math.ceil(left / 1000);
-      const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
-      const s = (totalSec % 60).toString().padStart(2, '0');
-      timerTxt.textContent = `ينتهي الرابط خلال: ${m}:${s}`;
-    }
     setTimeout(tick, 1000);
   }
   tick();
