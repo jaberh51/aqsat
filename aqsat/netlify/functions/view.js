@@ -1,57 +1,72 @@
-const R = async (cmd) => {
-  const res = await fetch(process.env.UPSTASH_REDIS_REST_URL + cmd, {
-    headers: { Authorization: 'Bearer ' + process.env.UPSTASH_REDIS_REST_TOKEN }
-  });
-  return res.json();
-};
-const resp = (statusCode, obj) => ({
-  statusCode,
-  headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  body: JSON.stringify(obj)
-});
+// netlify/functions/view.js
+const { getStore } = require('@netlify/blobs');
+
 exports.handler = async (event) => {
-  const qs = event.queryStringParameters || {};
-  const id = qs.id || '';
-  const token = (qs.t || '').trim();
-  if (!/^[A-Za-z0-9_-]{6,24}$/.test(id)) return resp(410, { error: 'gone' });
-  if (!/^[A-Za-z0-9_-]{10,64}$/.test(token)) return resp(400, { error: 'notoken' });
+  const headers = {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'Access-Control-Allow-Origin': '*'
+  };
 
-  const g = await R('/get/d:' + id);
-  if (!g.result) return resp(410, { error: 'gone' });
-  let data;
-  try { data = JSON.parse(g.result); }
-  catch { return resp(410, { error: 'gone' }); }
+  try {
+    const id = event.queryStringParameters?.id;
+    const clientToken = event.queryStringParameters?.t;
 
-  if (Date.now() >= data.exp) {
-    await R('/del/d:' + id);
-    await R('/del/own:' + id);
-    return resp(410, { error: 'gone' });
-  }
-
-  const remainSec = Math.max(1, Math.ceil((data.exp - Date.now()) / 1000) + 5);
-
-  // محاولة حجز الجهاز المالك (أول من يفتح الرابط) — بأمر ذرّي SETNX
-  const claim = await R('/setnx/own:' + id + '/' + encodeURIComponent(token));
-  if (claim && claim.result === 1) {
-    await R('/expire/own:' + id + '/' + remainSec);
-  } else if (claim && claim.result === 0) {
-    const owner = await R('/get/own:' + id);
-    if (!owner.result || owner.result !== token) {
-      return resp(403, { error: 'device' });
+    if (!id) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing ID' }) };
     }
-  } else {
-    // مسار احتياطي إن لم يُدعم SETNX: تحقق واحجز يدويًا
-    const owner = await R('/get/own:' + id);
-    if (!owner.result) {
-      await R('/set/own:' + id + '/' + encodeURIComponent(token) + '?EX=' + remainSec);
-    } else if (owner.result !== token) {
-      return resp(403, { error: 'device' });
-    }
-  }
 
-  return resp(200, {
-    a: data.a,
-    m: data.m,
-    left: Math.max(0, data.exp - Date.now())
-  });
+    const store = getStore('installments');
+    const dataRaw = await store.get(id);
+
+    // إذا كان الرابط غير موجود أو محذوف
+    if (!dataRaw) {
+      return { statusCode: 410, headers, body: JSON.stringify({ error: 'Expired or Gone' }) };
+    }
+
+    let data;
+    try {
+      data = typeof dataRaw === 'string' ? JSON.parse(dataRaw) : dataRaw;
+    } catch (e) {
+      return { statusCode: 410, headers, body: JSON.stringify({ error: 'Corrupt Data' }) };
+    }
+
+    // حساب الوقت المتبقي
+    const now = Date.now();
+    const left = data.exp - now;
+
+    if (left <= 0) {
+      await store.delete(id); // مسح البيانات عند الانتهاء
+      return { statusCode: 410, headers, body: JSON.stringify({ error: 'Expired' }) };
+    }
+
+    // إدارة التوكن والتأكد من فتح الرابط على نفس الجهاز
+    if (!data.token) {
+      // المرة الأولى: تسجيل التوكن للجهاز
+      data.token = clientToken;
+      await store.set(id, JSON.stringify(data));
+    } else if (data.token !== clientToken) {
+      // إذا فتح من جهاز مختلف
+      return { statusCode: 403, headers, body: JSON.stringify({ error: 'Device Mismatch' }) };
+    }
+
+    // إرجاع البيانات بنجاح (المرة الأولى والمرة الثانية)
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        a: data.amount,
+        m: data.note || '',
+        left: left
+      })
+    };
+
+  } catch (err) {
+    // حماية الدالة من الانهيار
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Server Error', details: err.message })
+    };
+  }
 };
