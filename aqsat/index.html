@@ -249,12 +249,32 @@ const REMINDERS = [
 ];
 const id = location.hash.slice(1);
 if (id) { openCustomer(id); } else { renderLock(); }
+
+function genToken(){
+  try {
+    const arr = new Uint8Array(20);
+    (window.crypto || window.msCrypto).getRandomValues(arr);
+    return Array.from(arr, b => b.toString(16).padStart(2,'0')).join('');
+  } catch(e){ return 'f' + Date.now().toString(16) + Math.random().toString(16).slice(2); }
+}
+function hasDeviceToken(id){ try { return !!localStorage.getItem('dev:' + id); } catch(e){ return false; } }
+function getDeviceToken(id){
+  const key = 'dev:' + id;
+  try {
+    let t = localStorage.getItem(key);
+    if (!t){ t = genToken(); localStorage.setItem(key, t); }
+    return t;
+  } catch(e){
+    if (!window.__memTok) window.__memTok = {};
+    if (!window.__memTok[id]) window.__memTok[id] = genToken();
+    return window.__memTok[id];
+  }
+}
+
 async function openCustomer(id){
-  let stash = null;
-  try { stash = JSON.parse(sessionStorage.getItem('s:' + id)); } catch(e){}
-  if (stash && Date.now() < stash.end){ renderCustomerView(stash.a, stash.end, stash.m, stash.tot); return; }
   try { if (sessionStorage.getItem('x:' + id) === '1'){ renderGone(); return; } } catch(e){}
-  renderRevealGate(id);
+  if (hasDeviceToken(id)) { revealAmount(id, true); }
+  else { renderRevealGate(id); }
 }
 function renderRevealGate(id){
   document.getElementById('headTitle').textContent = 'نظام الأقساط';
@@ -266,24 +286,39 @@ function renderRevealGate(id){
       <button id="revealBtn" onclick="revealAmount('${id}')" style="width:100%">اضغط لعرض المبلغ</button>
     </div>`;
 }
-async function revealAmount(id){
+let revealing = false;
+async function revealAmount(id, silent){
+  if (revealing) return;
+  revealing = true;
   const btn = document.getElementById('revealBtn');
-  if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; }
+  if (silent){ app.innerHTML = '<div class="loading">جارٍ التحميل...</div>'; }
+  else if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; btn.style.pointerEvents = 'none'; }
+  const token = getDeviceToken(id);
   try {
-    const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id), {cache:'no-store'});
+    const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id) + '&t=' + encodeURIComponent(token), {cache:'no-store'});
+    if (res.status === 403){ revealing = false; renderDeviceMismatch(); return; }
     if (res.status === 410){ markGone(id); renderGone(); return; }
     if (!res.ok){ renderGone(); return; }
     const d = await res.json();
     const end = Date.now() + d.left;
-    const tot = d.left;
-    try { sessionStorage.setItem('s:' + id, JSON.stringify({a:d.a, end, m:d.m, tot})); } catch(e){}
-    renderCustomerView(d.a, end, d.m, tot);
+    renderCustomerView(d.a, end, d.m, d.left);
   } catch(e){
-    if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; }
+    revealing = false;
+    if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; btn.style.pointerEvents = ''; }
     app.insertAdjacentHTML('beforeend', '<p style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:10px">لا يوجد اتصال بالإنترنت. حاول مجددًا.</p>');
   }
 }
-function markGone(id){ try { sessionStorage.removeItem('s:' + id); sessionStorage.setItem('x:' + id, '1'); } catch(e){} }
+function markGone(id){ try { sessionStorage.setItem('x:' + id, '1'); localStorage.removeItem('dev:' + id); } catch(e){} }
+function renderDeviceMismatch(){
+  document.getElementById('headTitle').textContent = 'نظام الأقساط';
+  document.getElementById('headSub').textContent = '';
+  app.innerHTML = `
+    <div class="expired">
+      <div class="x">📵</div>
+      <h2>هذا الرابط مخصّص لجهاز آخر</h2>
+      <p>لأمانك، يعمل هذا الرابط على الجهاز الذي فتحه أول مرة فقط.<br>إن كان هذا جهازك الصحيح فعلًا، تواصل مع المحل لطلب رابط جديد.</p>
+    </div>`;
+}
 function renderCustomerView(amount, end, note, totalMs){
   if (Date.now() >= end){ renderGone(); return; }
   if (!totalMs) totalMs = end - Date.now();
@@ -381,14 +416,8 @@ function renderMerchant(){
     <input id="camount" type="number" inputmode="decimal" placeholder="0" min="0.01" max="1000000" step="0.01">
     <label>ملاحظة للزبون (اختياري)</label>
     <input id="cnote" placeholder="مثال: القسط القادم يوم 15 من الشهر" maxlength="120">
-    <div class="row">
-      <div><label>مدة العرض</label>
-        <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30">30 دقيقة</option><option value="60">ساعة واحدة</option></select>
-      </div>
-      <div><label>عدد مرات الفتح</label>
-        <select id="copens"><option value="1">مرة واحدة فقط</option><option value="2">مرتان</option></select>
-      </div>
-    </div>
+    <label>مدة العرض</label>
+    <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30" selected>30 دقيقة</option><option value="60">ساعة واحدة</option></select>
     <button id="mkBtn" onclick="makeLink()">إنشاء الرابط</button>
     <div class="linkbox" id="lb">
       <div class="url" id="url" onclick="selectUrl(this)" title="اضغط لتحديد الرابط"></div>
@@ -396,7 +425,7 @@ function renderMerchant(){
       <button class="copybtn" onclick="copyLink()">نسخ الرابط لإرساله للزبون</button>
       <button class="wabtn" onclick="shareWhatsApp()">إرسال مباشرة عبر واتساب</button>
       <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
-      <div class="hint">⏱ يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة أو استهلاك مرات الفتح — أيهما أسبق.</div>
+      <div class="hint">🔒 الرابط يعمل بلا حدود على جهاز الزبون الذي يفتحه أولًا فقط، طوال مدة العرض. لن يعمل إن أُرسل لجهاز آخر. يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة.</div>
     </div>`;
 }
 function resetForm(){
@@ -416,15 +445,14 @@ async function makeLink(){
   const btn = document.getElementById('mkBtn');
   btn.disabled = true; btn.textContent = 'جارٍ الإنشاء...';
   try {
-    const res = await fetch('/.netlify/functions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin: sessionPin, amount: amount, note: document.getElementById('cnote').value.trim(), minutes: parseInt(document.getElementById('cmin').value), maxOpens: parseInt(document.getElementById('copens').value) }) });
+    const res = await fetch('/.netlify/functions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin: sessionPin, amount: amount, note: document.getElementById('cnote').value.trim(), minutes: parseInt(document.getElementById('cmin').value) }) });
     btn.disabled = false; btn.textContent = 'إنشاء الرابط';
     if (!res.ok){ if (res.status === 401){ alert('انتهت الجلسة، أعد الدخول'); location.reload(); return; } alert('تعذر إنشاء الرابط، حاول مجددًا'); return; }
     const out = await res.json();
     generated = location.origin + '/#' + out.id;
     document.getElementById('url').textContent = generated;
-    const opensTxt = out.o === 2 ? 'مرتان' : 'مرة واحدة فقط';
     const minTxt = out.minutes + ' دقيقة';
-    document.getElementById('confirmSettings').textContent = 'تم الإنشاء بنجاح — المدة: ' + minTxt + ' | الفتح: ' + opensTxt;
+    document.getElementById('confirmSettings').textContent = 'تم الإنشاء بنجاح — المدة: ' + minTxt + ' | يعمل على جهاز الزبون فقط';
     document.getElementById('lb').classList.add('show');
   } catch(e){ btn.disabled = false; btn.textContent = 'إنشاء الرابط'; alert('تعذر الاتصال بالخادم'); }
 }
