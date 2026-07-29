@@ -294,50 +294,39 @@ function getDeviceToken(id){
 
 async function openCustomer(id){
   try { if (sessionStorage.getItem('x:' + id) === '1'){ renderGone(); return; } } catch(e){}
-  if (hasDeviceToken(id)) { revealAmount(id, true); }
-  else { renderRevealGate(id); }
+  renderRevealGate(id);
 }
 function renderRevealGate(id){
   setHead('نظام الأقساط', '');
   app.innerHTML = `
     <div class="cust" style="padding:10px 0">
       <div style="font-size:2.4rem;margin-bottom:6px">🔒</div>
-      <p style="font-size:.92rem;color:#5a5040;line-height:1.9;margin-bottom:18px">هذا الكشف مخصّص لك وحدك.<br>اضغط الزر لعرض المبلغ.</p>
+      <p style="font-size:.92rem;color:#5a5040;line-height:1.9;margin-bottom:18px">اضغط الزر لعرض المبلغ.</p>
       <button id="revealBtn" onclick="revealAmount('${id}')" style="width:100%">اضغط لعرض المبلغ</button>
+      <p id="revealErr" style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:14px;display:none"></p>
     </div>`;
 }
 let revealing = false;
-async function revealAmount(id, silent){
+async function revealAmount(id){
   if (revealing) return;
   revealing = true;
   const btn = document.getElementById('revealBtn');
-  if (silent){ app.innerHTML = '<div class="loading">جارٍ التحميل...</div>'; }
-  else if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; btn.style.pointerEvents = 'none'; }
-  const safetyTimer = setTimeout(() => {
-    if (revealing) {
-      revealing = false;
-      app.innerHTML = `
-        <div class="cust" style="padding:10px 0">
-          <p style="font-size:.9rem;color:var(--accent);margin-bottom:16px">استغرق التحميل وقتًا أطول من المتوقع.</p>
-          <button onclick="revealAmount('${id}')" style="width:100%">إعادة المحاولة</button>
-        </div>`;
-    }
-  }, 8000);
+  const errEl = document.getElementById('revealErr');
+  if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; btn.style.pointerEvents = 'none'; }
+  if (errEl) errEl.style.display = 'none';
   const token = getDeviceToken(id);
   try {
     const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id) + '&t=' + encodeURIComponent(token), {cache:'no-store'});
-    clearTimeout(safetyTimer);
     if (res.status === 403){ revealing = false; renderDeviceMismatch(); return; }
     if (res.status === 410){ markGone(id); renderGone(); return; }
-    if (!res.ok){ renderGone(); return; }
+    if (!res.ok){ revealing = false; if (btn){ btn.disabled=false; btn.textContent='اضغط لعرض المبلغ'; btn.style.pointerEvents=''; } if (errEl){ errEl.textContent='تعذر تحميل الكشف (خطأ ' + res.status + '). حاول مجددًا.'; errEl.style.display='block'; } return; }
     const d = await res.json();
     const end = Date.now() + d.left;
     renderCustomerView(d.a, end, d.m, d.left);
   } catch(e){
-    clearTimeout(safetyTimer);
     revealing = false;
     if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; btn.style.pointerEvents = ''; }
-    app.insertAdjacentHTML('beforeend', '<p style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:10px">لا يوجد اتصال بالإنترنت. حاول مجددًا.</p>');
+    if (errEl){ errEl.textContent = 'لا يوجد اتصال بالإنترنت. حاول مجددًا.'; errEl.style.display = 'block'; }
   }
 }
 function markGone(id){ try { sessionStorage.setItem('x:' + id, '1'); localStorage.removeItem('dev:' + id); } catch(e){} }
