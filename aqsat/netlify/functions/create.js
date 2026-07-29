@@ -34,16 +34,14 @@ exports.handler = async (event) => {
   if (!isFinite(amount) || amount <= 0 || amount > 1000000)
     return resp(400, { error: 'amount' });
   const minutes = [5, 10, 30, 60].includes(b.minutes) ? b.minutes : 5;
-  const maxOpens = [1, 2].includes(b.maxOpens) ? b.maxOpens : 1;
   const note = String(b.note || '').slice(0, 120);
   const id = crypto.randomBytes(9).toString('base64url');
   const data = {
     a: Math.round(amount * 100) / 100,
     m: note,
-    o: maxOpens,
     exp: Date.now() + minutes * 60000
   };
   const ttl = minutes * 60;
   await R('/set/d:' + id + '/' + encodeURIComponent(JSON.stringify(data)) + '?EX=' + ttl);
-  return resp(200, { id, o: maxOpens, minutes });
+  return resp(200, { id, minutes });
 };
