@@ -82,7 +82,6 @@ document.addEventListener('keydown', e => {
   const k = e.key.toUpperCase();
   if (e.key === 'F12' || (e.ctrlKey && k === 'U') || (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'J' || k === 'C')) || (e.metaKey && e.altKey && (k === 'I' || k === 'J' || k === 'C')) || (e.metaKey && k === 'U')) { e.preventDefault(); }
 });
-window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
 const app = document.getElementById('app');
 function setHead(title, sub){
   try {
@@ -314,9 +313,20 @@ async function revealAmount(id, silent){
   const btn = document.getElementById('revealBtn');
   if (silent){ app.innerHTML = '<div class="loading">جارٍ التحميل...</div>'; }
   else if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; btn.style.pointerEvents = 'none'; }
+  const safetyTimer = setTimeout(() => {
+    if (revealing) {
+      revealing = false;
+      app.innerHTML = `
+        <div class="cust" style="padding:10px 0">
+          <p style="font-size:.9rem;color:var(--accent);margin-bottom:16px">استغرق التحميل وقتًا أطول من المتوقع.</p>
+          <button onclick="revealAmount('${id}')" style="width:100%">إعادة المحاولة</button>
+        </div>`;
+    }
+  }, 8000);
   const token = getDeviceToken(id);
   try {
     const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id) + '&t=' + encodeURIComponent(token), {cache:'no-store'});
+    clearTimeout(safetyTimer);
     if (res.status === 403){ revealing = false; renderDeviceMismatch(); return; }
     if (res.status === 410){ markGone(id); renderGone(); return; }
     if (!res.ok){ renderGone(); return; }
@@ -324,6 +334,7 @@ async function revealAmount(id, silent){
     const end = Date.now() + d.left;
     renderCustomerView(d.a, end, d.m, d.left);
   } catch(e){
+    clearTimeout(safetyTimer);
     revealing = false;
     if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; btn.style.pointerEvents = ''; }
     app.insertAdjacentHTML('beforeend', '<p style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:10px">لا يوجد اتصال بالإنترنت. حاول مجددًا.</p>');
