@@ -254,7 +254,21 @@ async function openCustomer(id){
   try { stash = JSON.parse(sessionStorage.getItem('s:' + id)); } catch(e){}
   if (stash && Date.now() < stash.end){ renderCustomerView(stash.a, stash.end, stash.m, stash.tot); return; }
   try { if (sessionStorage.getItem('x:' + id) === '1'){ renderGone(); return; } } catch(e){}
-  app.innerHTML = '<div class="loading">جارٍ التحميل...</div>';
+  renderRevealGate(id);
+}
+function renderRevealGate(id){
+  document.getElementById('headTitle').textContent = 'نظام الأقساط';
+  document.getElementById('headSub').textContent = '';
+  app.innerHTML = `
+    <div class="cust" style="padding:10px 0">
+      <div style="font-size:2.4rem;margin-bottom:6px">🔒</div>
+      <p style="font-size:.92rem;color:#5a5040;line-height:1.9;margin-bottom:18px">هذا الكشف مخصّص لك وحدك.<br>اضغط الزر لعرض المبلغ.</p>
+      <button id="revealBtn" onclick="revealAmount('${id}')" style="width:100%">اضغط لعرض المبلغ</button>
+    </div>`;
+}
+async function revealAmount(id){
+  const btn = document.getElementById('revealBtn');
+  if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; }
   try {
     const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id), {cache:'no-store'});
     if (res.status === 410){ markGone(id); renderGone(); return; }
@@ -264,7 +278,10 @@ async function openCustomer(id){
     const tot = d.left;
     try { sessionStorage.setItem('s:' + id, JSON.stringify({a:d.a, end, m:d.m, tot})); } catch(e){}
     renderCustomerView(d.a, end, d.m, tot);
-  } catch(e){ app.innerHTML = '<div class="loading">لا يوجد اتصال بالإنترنت. حاول مجددًا.</div>'; }
+  } catch(e){
+    if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; }
+    app.insertAdjacentHTML('beforeend', '<p style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:10px">لا يوجد اتصال بالإنترنت. حاول مجددًا.</p>');
+  }
 }
 function markGone(id){ try { sessionStorage.removeItem('s:' + id); sessionStorage.setItem('x:' + id, '1'); } catch(e){} }
 function renderCustomerView(amount, end, note, totalMs){
