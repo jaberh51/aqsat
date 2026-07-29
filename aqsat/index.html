@@ -84,6 +84,14 @@ document.addEventListener('keydown', e => {
 });
 window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
 const app = document.getElementById('app');
+function setHead(title, sub){
+  try {
+    const t = document.getElementById('headTitle');
+    const s = document.getElementById('headSub');
+    if (t && title !== undefined) t.textContent = title;
+    if (s && sub !== undefined) s.textContent = sub;
+  } catch(e){}
+}
 let sessionPin = '';
 const REMINDERS = [
   {
@@ -247,8 +255,22 @@ const REMINDERS = [
     "s": "رواه الترمذي"
   }
 ];
+window.addEventListener('error', function(ev){
+  try {
+    if (document.getElementById('errBox')) return;
+    const box = document.createElement('div');
+    box.id = 'errBox';
+    box.style.cssText = 'margin-top:16px;padding:12px;border:1px solid #c0392b;border-radius:6px;background:#fff3f2;color:#7a1f1f;font-size:.75rem;direction:ltr;text-align:left;word-break:break-word;line-height:1.6';
+    box.innerHTML = '<b>حدث خطأ تقني — صوّر هذا الصندوق وأرسله:</b><br>' + String(ev.message || ev) + '<br><button onclick="location.reload()" style="margin-top:10px;width:auto;padding:8px 14px;background:#7a1f1f;color:#fff;border:none;border-radius:4px;font-size:.8rem">إعادة المحاولة</button>';
+    document.body.appendChild(box);
+  } catch(e){}
+});
 const id = location.hash.slice(1);
-if (id) { openCustomer(id); } else { renderLock(); }
+try {
+  if (id) { openCustomer(id); } else { renderLock(); }
+} catch(err){
+  window.dispatchEvent(new ErrorEvent('error', { message: 'بدء التشغيل: ' + (err && err.message ? err.message : err) }));
+}
 
 function genToken(){
   try {
@@ -277,8 +299,7 @@ async function openCustomer(id){
   else { renderRevealGate(id); }
 }
 function renderRevealGate(id){
-  document.getElementById('headTitle').textContent = 'نظام الأقساط';
-  document.getElementById('headSub').textContent = '';
+  setHead('نظام الأقساط', '');
   app.innerHTML = `
     <div class="cust" style="padding:10px 0">
       <div style="font-size:2.4rem;margin-bottom:6px">🔒</div>
@@ -310,8 +331,7 @@ async function revealAmount(id, silent){
 }
 function markGone(id){ try { sessionStorage.setItem('x:' + id, '1'); localStorage.removeItem('dev:' + id); } catch(e){} }
 function renderDeviceMismatch(){
-  document.getElementById('headTitle').textContent = 'نظام الأقساط';
-  document.getElementById('headSub').textContent = '';
+  setHead('نظام الأقساط', '');
   app.innerHTML = `
     <div class="expired">
       <div class="x">📵</div>
@@ -322,8 +342,7 @@ function renderDeviceMismatch(){
 function renderCustomerView(amount, end, note, totalMs){
   if (Date.now() >= end){ renderGone(); return; }
   if (!totalMs) totalMs = end - Date.now();
-  document.getElementById('headTitle').textContent = 'نظام الأقساط';
-  document.getElementById('headSub').textContent = '';
+  setHead('نظام الأقساط', '');
   const amtStr = Number(amount).toLocaleString('ar');
   app.innerHTML = `
     <div class="cust" id="custView">
@@ -371,8 +390,7 @@ function renderCustomerView(amount, end, note, totalMs){
 function renderGone(){
   const curId = location.hash.slice(1);
   if (curId) markGone(curId);
-  document.getElementById('headTitle').textContent = 'نظام الأقساط';
-  document.getElementById('headSub').textContent = '';
+  setHead('نظام الأقساط', '');
   const r = REMINDERS[Math.floor(Math.random() * REMINDERS.length)];
   app.innerHTML = `
     <div class="expired">
@@ -383,7 +401,7 @@ function renderGone(){
     </div>`;
 }
 function renderLock(){
-  document.getElementById('headSub').textContent = 'صفحة خاصة بالمحل';
+  setHead(undefined, 'صفحة خاصة بالمحل');
   app.innerHTML = `
     <label>أدخل الرمز السري</label>
     <input id="pin" type="password" inputmode="numeric" autocomplete="off" style="text-align:center;letter-spacing:8px;font-size:1.4rem" maxlength="30">
@@ -410,7 +428,7 @@ async function checkPin(){
 }
 function shakePin(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 function renderMerchant(){
-  document.getElementById('headSub').textContent = 'نظام الأقساط';
+  setHead(undefined, 'نظام الأقساط');
   app.innerHTML = `
     <label>المبلغ المتبقي (دينار أردني)</label>
     <input id="camount" type="number" inputmode="decimal" placeholder="0" min="0.01" max="1000000" step="0.01">
