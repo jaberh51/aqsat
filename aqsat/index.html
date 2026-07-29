@@ -375,6 +375,7 @@ function renderMerchant(){
     <button id="mkBtn" onclick="makeLink()">إنشاء الرابط</button>
     <div class="linkbox" id="lb">
       <div class="url" id="url" onclick="selectUrl(this)" title="اضغط لتحديد الرابط"></div>
+      <div id="confirmSettings" style="font-size:.78rem;color:var(--ok);font-weight:500;margin-bottom:10px;text-align:center"></div>
       <button class="copybtn" onclick="copyLink()">نسخ الرابط لإرساله للزبون</button>
       <button class="wabtn" onclick="shareWhatsApp()">إرسال مباشرة عبر واتساب</button>
       <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
@@ -404,6 +405,9 @@ async function makeLink(){
     const out = await res.json();
     generated = location.origin + '/#' + out.id;
     document.getElementById('url').textContent = generated;
+    const opensTxt = out.o === 2 ? 'مرتان' : 'مرة واحدة فقط';
+    const minTxt = out.minutes + ' دقيقة';
+    document.getElementById('confirmSettings').textContent = 'تم الإنشاء بنجاح — المدة: ' + minTxt + ' | الفتح: ' + opensTxt;
     document.getElementById('lb').classList.add('show');
   } catch(e){ btn.disabled = false; btn.textContent = 'إنشاء الرابط'; alert('تعذر الاتصال بالخادم'); }
 }
