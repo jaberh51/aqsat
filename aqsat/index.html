@@ -459,7 +459,7 @@ function renderMerchant(){
       <button class="copybtn" onclick="copyLink()">نسخ الرابط لإرساله للزبون</button>
       <button class="wabtn" onclick="shareWhatsApp()">إرسال مباشرة عبر واتساب</button>
       <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
-      <div class="hint">🔒 الرابط يعمل بلا حدود على جهاز الزبون الذي يفتحه أولًا فقط، طوال مدة العرض. لن يعمل إن أُرسل لجهاز آخر. يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة.</div>
+      <div class="hint">🔒 الرابط يعمل بلا حدود على جهاز الزبون الذي يفتحه أولًا فقط، طوال مدة العرض. لن يعمل إن أُرسل لجهاز آخر. يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة.<br>💡 تذكير: بعد انتهاء صلاحية الكشف، يُستحسن حذف رسالة الرابط من محادثة واتساب لتنظيم المحادثة.</div>
     </div>`;
 }
 function resetForm(){
@@ -491,7 +491,8 @@ async function makeLink(){
     document.getElementById('url').textContent = generated;
     const minTxt = out.minutes + ' دقيقة';
     const expiryClock = new Date(Date.now() + out.minutes * 60000).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
-    document.getElementById('confirmSettings').textContent = 'تم الإنشاء — المدة: ' + minTxt + ' (ينتهي حوالي الساعة ' + expiryClock + ') | يعمل على جهاز الزبون فقط';
+    const refCode = out.id.slice(-4).toUpperCase();
+    document.getElementById('confirmSettings').innerHTML = 'تم الإنشاء — المدة: ' + minTxt + ' (ينتهي حوالي الساعة ' + expiryClock + ') | يعمل على جهاز الزبون فقط<br><span style="font-weight:700">الرقم المرجعي: #' + refCode + '</span>';
     document.getElementById('lb').classList.add('show');
   } catch(e){ btn.disabled = false; btn.textContent = 'إنشاء الرابط'; alert('تعذر الاتصال بالخادم'); }
 }
