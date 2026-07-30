@@ -509,18 +509,43 @@ function renderMerchant(){
       <div id="confirmSettings" style="font-size:.78rem;color:var(--ok);font-weight:500;margin-bottom:10px;text-align:center"></div>
       <button class="copybtn" onclick="copyLink()">نسخ الرابط لإرساله للزبون</button>
       <button class="wabtn" onclick="shareWhatsApp()">إرسال مباشرة عبر واتساب</button>
+      <button class="newbtn" onclick="checkOpened()" id="checkBtn">🔍 هل فتح الزبون الرابط؟</button>
+      <div id="openStatus" style="text-align:center;font-size:.82rem;margin-top:8px;font-weight:500"></div>
       <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
       <div class="hint">🔒 الرابط يعمل بلا حدود على جهاز الزبون الذي يفتحه أولًا فقط، طوال مدة العرض. لن يعمل إن أُرسل لجهاز آخر. يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة.<br>💡 تذكير: بعد انتهاء صلاحية الكشف، يُستحسن حذف رسالة الرابط من محادثة واتساب لتنظيم المحادثة.</div>
     </div>`;
+}
+async function checkOpened(){
+  if (!currentLinkId) return;
+  const btn = document.getElementById('checkBtn');
+  const out = document.getElementById('openStatus');
+  if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحقق...'; }
+  try {
+    const res = await fetch('/.netlify/functions/status', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin: sessionPin, id: currentLinkId }) });
+    if (btn){ btn.disabled = false; btn.textContent = '🔍 هل فتح الزبون الرابط؟'; }
+    if (!res.ok){ if (out){ out.textContent = 'تعذر التحقق الآن'; out.style.color = 'var(--accent)'; } return; }
+    const s = await res.json();
+    if (out){
+      if (!s.exists){ out.textContent = '⌛ انتهت صلاحية الرابط'; out.style.color = 'var(--gold)'; }
+      else if (s.opened){ out.textContent = '✅ نعم، فتح الزبون الرابط'; out.style.color = 'var(--ok)'; }
+      else { out.textContent = '⏳ لم يُفتح بعد'; out.style.color = 'var(--gold)'; }
+    }
+  } catch(e){
+    if (btn){ btn.disabled = false; btn.textContent = '🔍 هل فتح الزبون الرابط؟'; }
+    if (out){ out.textContent = 'تعذر الاتصال بالخادم'; out.style.color = 'var(--accent)'; }
+  }
 }
 function resetForm(){
   document.getElementById('camount').value = '';
   document.getElementById('cnote').value = '';
   generated = '';
+  currentLinkId = '';
+  const os = document.getElementById('openStatus'); if (os) os.textContent = '';
   document.getElementById('lb').classList.remove('show');
   document.getElementById('camount').focus();
 }
 let generated = '';
+let currentLinkId = '';
 async function makeLink(){
   const raw = document.getElementById('camount').value.trim();
   const amount = Number(raw);
@@ -539,11 +564,13 @@ async function makeLink(){
     if (!res.ok){ if (res.status === 401){ alert('انتهت الجلسة، أعد الدخول'); location.reload(); return; } alert('تعذر إنشاء الرابط، حاول مجددًا'); return; }
     const out = await res.json();
     generated = location.origin + '/#' + out.id;
+    currentLinkId = out.id;
     document.getElementById('url').textContent = generated;
     const minTxt = out.minutes + ' دقيقة';
     const expiryClock = new Date(Date.now() + out.minutes * 60000).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
     const refCode = out.id.slice(-4).toUpperCase();
     document.getElementById('confirmSettings').innerHTML = 'تم الإنشاء — المدة: ' + minTxt + ' (ينتهي حوالي الساعة ' + expiryClock + ') | يعمل على جهاز الزبون فقط<br><span style="font-weight:700">الرقم المرجعي: #' + refCode + '</span>';
+    const os = document.getElementById('openStatus'); if (os) os.textContent = '';
     document.getElementById('lb').classList.add('show');
   } catch(e){ btn.disabled = false; btn.textContent = 'إنشاء الرابط'; alert('تعذر الاتصال بالخادم'); }
 }
