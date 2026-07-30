@@ -301,7 +301,7 @@ window.addEventListener('error', function(ev){
 });
 const id = location.hash.slice(1);
 try {
-  if (id) { openCustomer(id); } else { renderLock(); }
+  if (id) { openCustomer(id); } else { tryRestoreMerchantSession(); }
 } catch(err){
   window.dispatchEvent(new ErrorEvent('error', { message: 'بدء التشغيل: ' + (err && err.message ? err.message : err) }));
 }
@@ -459,6 +459,12 @@ function renderGone(){
       <div class="reminder"><div class="rtext">${r.t}</div><div class="rsrc">${r.s}</div></div>
     </div>`;
 }
+function tryRestoreMerchantSession(){
+  let saved = '';
+  try { saved = sessionStorage.getItem('mpin') || ''; } catch(e){}
+  if (saved){ sessionPin = saved; renderMerchant(); }
+  else { renderLock(); }
+}
 function renderLock(){
   setHead(undefined, 'صفحة خاصة بالمحل');
   app.innerHTML = `
@@ -488,7 +494,7 @@ async function checkPin(){
   try {
     const res = await fetch('/.netlify/functions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin: val, check: true}) });
     btn.disabled = false; btn.textContent = 'دخول';
-    if (res.ok){ sessionPin = val; renderMerchant(); }
+    if (res.ok){ sessionPin = val; try { sessionStorage.setItem('mpin', val); } catch(e){} renderMerchant(); }
     else if (res.status === 429){ err.textContent = 'محاولات كثيرة. حاول بعد 5 دقائق'; err.style.display = 'block'; shakePin(pinEl); }
     else { err.textContent = 'الرمز غير صحيح'; err.style.display = 'block'; pinEl.value = ''; shakePin(pinEl); pinEl.focus(); }
   } catch(e){ btn.disabled = false; btn.textContent = 'دخول'; err.textContent = 'تعذر الاتصال بالخادم'; err.style.display = 'block'; }
