@@ -33,7 +33,7 @@ exports.handler = async (event) => {
   const amount = Number(b.amount);
   if (!isFinite(amount) || amount <= 0 || amount > 1000000)
     return resp(400, { error: 'amount' });
-  const minutes = [5, 10, 30, 60].includes(b.minutes) ? b.minutes : 5;
+  const minutes = [5, 10, 30, 60, 720].includes(b.minutes) ? b.minutes : 5;
   const note = String(b.note || '').slice(0, 120);
   const id = crypto.randomBytes(9).toString('base64url');
   const data = {
