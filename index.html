@@ -521,7 +521,7 @@ function renderMerchant(){
     <label>ملاحظة للزبون (اختياري)</label>
     <input id="cnote" placeholder="مثال: القسط القادم يوم 15 من الشهر" maxlength="120">
     <label>مدة العرض</label>
-    <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30" selected>30 دقيقة</option><option value="60">ساعة واحدة</option></select>
+    <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30" selected>30 دقيقة</option><option value="60">ساعة واحدة</option><option value="720">12 ساعة</option></select>
     <button id="mkBtn" onclick="makeLink()">إنشاء الرابط</button>
     <div class="linkbox" id="lb">
       <div class="url" id="url" onclick="selectUrl(this)" title="اضغط لتحديد الرابط"></div>
@@ -588,7 +588,7 @@ async function makeLink(){
     generated = location.origin + '/#' + out.id;
     currentLinkId = out.id;
     document.getElementById('url').textContent = generated;
-    const minTxt = out.minutes + ' دقيقة';
+    const minTxt = out.minutes >= 60 ? (out.minutes / 60) + ' ساعة' : out.minutes + ' دقيقة';
     const expiryClock = new Date(Date.now() + out.minutes * 60000).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
     const refCode = out.id.slice(-4).toUpperCase();
     document.getElementById('confirmSettings').innerHTML = 'تم الإنشاء — المدة: ' + minTxt + ' (ينتهي حوالي الساعة ' + expiryClock + ') | يعمل على جهاز الزبون فقط<br><span style="font-weight:700">الرقم المرجعي: #' + refCode + '</span>';
