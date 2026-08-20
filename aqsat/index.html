@@ -460,10 +460,23 @@ function renderGone(){
     </div>`;
 }
 function tryRestoreMerchantSession(){
-  let saved = '';
-  try { saved = sessionStorage.getItem('mpin') || ''; } catch(e){}
-  if (saved){ sessionPin = saved; renderMerchant(); }
-  else { renderLock(); }
+  try {
+    const raw = localStorage.getItem('mses');
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.p && s.t && (Date.now() - s.t < 86400000)) {
+        sessionPin = s.p; renderMerchant(); return;
+      } else {
+        localStorage.removeItem('mses');
+      }
+    }
+  } catch(e){}
+  renderLock();
+}
+function merchantLogout(){
+  try { localStorage.removeItem('mses'); } catch(e){}
+  sessionPin = '';
+  renderLock();
 }
 function renderLock(){
   setHead(undefined, 'صفحة خاصة بالمحل');
@@ -494,7 +507,7 @@ async function checkPin(){
   try {
     const res = await fetch('/.netlify/functions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin: val, check: true}) });
     btn.disabled = false; btn.textContent = 'دخول';
-    if (res.ok){ sessionPin = val; try { sessionStorage.setItem('mpin', val); } catch(e){} renderMerchant(); }
+    if (res.ok){ sessionPin = val; try { localStorage.setItem('mses', JSON.stringify({p: val, t: Date.now()})); } catch(e){} renderMerchant(); }
     else if (res.status === 429){ err.textContent = 'محاولات كثيرة. حاول بعد 5 دقائق'; err.style.display = 'block'; shakePin(pinEl); }
     else { err.textContent = 'الرمز غير صحيح'; err.style.display = 'block'; pinEl.value = ''; shakePin(pinEl); pinEl.focus(); }
   } catch(e){ btn.disabled = false; btn.textContent = 'دخول'; err.textContent = 'تعذر الاتصال بالخادم'; err.style.display = 'block'; }
@@ -508,7 +521,7 @@ function renderMerchant(){
     <label>ملاحظة للزبون (اختياري)</label>
     <input id="cnote" placeholder="مثال: القسط القادم يوم 15 من الشهر" maxlength="120">
     <label>مدة العرض</label>
-    <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30" selected>30 دقيقة</option><option value="60">ساعة واحدة</option></select>
+    <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30" selected>30 دقيقة</option><option value="60">ساعة واحدة</option><option value="720">12 ساعة</option></select>
     <button id="mkBtn" onclick="makeLink()">إنشاء الرابط</button>
     <div class="linkbox" id="lb">
       <div class="url" id="url" onclick="selectUrl(this)" title="اضغط لتحديد الرابط"></div>
@@ -519,6 +532,9 @@ function renderMerchant(){
       <div id="openStatus" style="text-align:center;font-size:.82rem;margin-top:8px;font-weight:500"></div>
       <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
       <div class="hint">🔒 الرابط يعمل بلا حدود على جهاز الزبون الذي يفتحه أولًا فقط، طوال مدة العرض. لن يعمل إن أُرسل لجهاز آخر. يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة.<br>💡 تذكير: بعد انتهاء صلاحية الكشف، يُستحسن حذف رسالة الرابط من محادثة واتساب لتنظيم المحادثة.</div>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <a href="#" onclick="merchantLogout(); return false;" style="font-size:.78rem;color:#9a8f78;text-decoration:none">🔓 خروج من صفحة المحل</a>
     </div>`;
 }
 async function checkOpened(){
@@ -572,7 +588,7 @@ async function makeLink(){
     generated = location.origin + '/#' + out.id;
     currentLinkId = out.id;
     document.getElementById('url').textContent = generated;
-    const minTxt = out.minutes + ' دقيقة';
+    const minTxt = out.minutes >= 60 ? (out.minutes / 60) + ' ساعة' : out.minutes + ' دقيقة';
     const expiryClock = new Date(Date.now() + out.minutes * 60000).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
     const refCode = out.id.slice(-4).toUpperCase();
     document.getElementById('confirmSettings').innerHTML = 'تم الإنشاء — المدة: ' + minTxt + ' (ينتهي حوالي الساعة ' + expiryClock + ') | يعمل على جهاز الزبون فقط<br><span style="font-weight:700">الرقم المرجعي: #' + refCode + '</span>';
