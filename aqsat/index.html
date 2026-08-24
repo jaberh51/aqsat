@@ -2,608 +2,685 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام الأقساط</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314332e'/%3E%3Cpath d='M30 22h40a4 4 0 0 1 4 4v52l-8-6-8 6-8-6-8 6-8-6-8 6V26a4 4 0 0 1 4-4z' fill='%23f7f3ea'/%3E%3Crect x='36' y='34' width='28' height='4' rx='2' fill='%238a7340'/%3E%3Crect x='36' y='44' width='28' height='4' rx='2' fill='%238a7340'/%3E%3Crect x='36' y='54' width='18' height='4' rx='2' fill='%23b4552d'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314332e'/%3E%3Cpath d='M30 22h40a4 4 0 0 1 4 4v52l-8-6-8 6-8-6-8 6-8-6-8 6V26a4 4 0 0 1 4-4z' fill='%23f7f3ea'/%3E%3C/svg%3E">
-<meta name="theme-color" content="#14332e">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>حاسبة أقساط الهواتف</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0e1a1f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="أقساط الهواتف">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#14332e;--paper:#f7f3ea;--line:#d8cfbc;--accent:#b4552d;--gold:#8a7340;--ok:#2c6e49}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--ink);color:var(--paper);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-image:radial-gradient(circle at 20% 10%, rgba(255,255,255,.04), transparent 40%)}
-  .card{width:100%;max-width:430px;background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");color:var(--ink);border-radius:6px;box-shadow:0 24px 60px rgba(0,0,0,.45);overflow:hidden;position:relative}
-  .geo-border{height:7px;background-image:repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 5px, transparent 5px, transparent 10px, var(--gold) 10px, var(--gold) 15px, transparent 15px, transparent 20px);opacity:.55}
-  .card::before,.card::after{content:"";display:block;height:10px;background-image:radial-gradient(circle at 8px -2px, transparent 7px, var(--paper) 8px);background-size:16px 10px;background-position:center}
-  .card::before{transform:rotate(180deg)}
-  .head{padding:26px 28px 14px;border-bottom:1px dashed var(--line);text-align:center}
-  .head h1{font-family:'Amiri',serif;font-size:1.45rem;letter-spacing:.5px}
-  .head p{font-size:.78rem;color:var(--gold);margin-top:4px;font-weight:500}
-  .body{padding:24px 28px 30px}
-  label{display:block;font-size:.8rem;font-weight:500;color:var(--gold);margin:14px 0 6px}
-  input,select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:4px;background:#fffdf8;font:inherit;font-size:1rem;color:var(--ink)}
-  input:focus,select:focus{outline:2px solid var(--ink);outline-offset:1px}
-  .row{display:flex;gap:10px}
+  :root{
+    --bg:#0e1a1f; --card:#15262d; --card2:#1b323b;
+    --ink:#eef6f4; --muted:#8fb0ac;
+    --accent:#ffb347; --accent-ink:#1a1200;
+    --good:#4cd8a4; --warn:#e9a170; --bad:#e97070; --line:#24424c;
+    --radius:18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{
+    font-family:'Tajawal',sans-serif; background:var(--bg); color:var(--ink);
+    min-height:100vh; padding:16px 14px 90px; max-width:520px; margin:0 auto;
+  }
+  header{padding:10px 4px 18px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px}
+  header h1{font-size:22px; font-weight:800}
+  header p{color:var(--muted); font-size:13px; margin-top:4px}
+  .gear{
+    background:var(--card2); border:1px solid var(--line); color:var(--ink);
+    border-radius:12px; font-size:18px; padding:8px 12px; cursor:pointer; flex-shrink:0;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .gear:active{transform:rotate(45deg) scale(.95)}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:14px}
+  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px; font-weight:500}
+  input{
+    width:100%; background:var(--card2); border:1px solid var(--line); color:var(--ink);
+    border-radius:12px; padding:12px 14px; font-size:18px; font-family:inherit; font-weight:700;
+    transition:border-color .15s ease;
+  }
+  input:focus{outline:2px solid var(--accent); border-color:transparent}
+  input.invalid{border-color:var(--bad)}
+  .field-err{color:var(--bad); font-size:12px; margin-top:5px; display:none; font-weight:500}
+  .row{display:flex; gap:10px}
   .row > div{flex:1}
-  button{width:100%;margin-top:22px;padding:13px;background:var(--ink);color:var(--paper);border:none;border-radius:4px;font:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .1s}
-  button:active{transform:scale(.98)}
-  button:disabled{opacity:.6;cursor:wait}
-  button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-  .linkbox{margin-top:18px;display:none;border:1px dashed var(--gold);border-radius:4px;padding:14px;background:#fffdf8}
-  .linkbox.show{display:block}
-  .linkbox .url{font-size:.82rem;direction:ltr;text-align:left;word-break:break-all;color:#555;margin-bottom:10px;cursor:pointer}
-  .copybtn{margin-top:0;background:var(--ok)}
-  .wabtn{margin-top:8px;background:#128c4b}
-  .newbtn{margin-top:8px;background:transparent;color:var(--ink);border:1px solid var(--line)}
-  .hint{font-size:.72rem;color:#7a7060;margin-top:10px;line-height:1.7}
-  .cust{text-align:center}
-  .amount{font-family:'Amiri',serif;font-size:3rem;font-weight:700;margin:14px 0 2px;letter-spacing:1px;display:flex;align-items:baseline;justify-content:center;gap:8px}
-  .amount .cur{font-size:1.1rem;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:500;color:var(--gold)}
-  .writing{border-left:3px solid var(--accent);padding-left:2px;animation:penblink .5s step-end infinite}
-  @keyframes penblink{50%{border-color:transparent}}
-  .stamp{color:var(--accent);margin:16px auto 0;width:96px;height:96px;opacity:0;transform:scale(2.4) rotate(-18deg);transition:none;position:relative;border-radius:50%;overflow:hidden}
-  .stamp.stamped::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg, transparent 42%, rgba(255,221,150,.65) 50%, transparent 58%);background-size:260% 260%;background-position:-120% -120%;animation:shimmer .9s ease-out .55s 1 both;pointer-events:none}
-  @keyframes shimmer{from{background-position:-120% -120%}to{background-position:120% 120%}}
-  .stamp.stamped{animation:stampdrop .5s cubic-bezier(.2,1.4,.4,1) forwards}
-  @keyframes stampdrop{
-    0%{opacity:0;transform:scale(2.4) rotate(-18deg)}
-    60%{opacity:.9;transform:scale(.92) rotate(-13deg)}
-    80%{transform:scale(1.04) rotate(-15deg)}
-    100%{opacity:.82;transform:scale(1) rotate(-14deg)}
+  .field{margin-bottom:12px}
+  .result{
+    background:linear-gradient(160deg,var(--card2),var(--card)); border:1px solid var(--line);
+    border-radius:var(--radius); padding:18px 16px; margin-bottom:14px;
+    animation:fadeIn .3s ease;
   }
-  @media (prefers-reduced-motion:reduce){
-    .writing{animation:none;border-left:none}
-    .stamp.stamped{animation:none;opacity:.82;transform:scale(1) rotate(-14deg)}
-    .stamp.stamped::after{animation:none;display:none}
+  .result .big{font-size:38px; font-weight:800; color:var(--accent)}
+  .result .biglabel{font-size:13px; color:var(--muted); margin-top:2px}
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px}
+  .stat b{display:block; font-size:18px}
+  .stat span{font-size:12px; color:var(--muted)}
+  .stat b.profit{color:var(--good)}
+  .warn{color:var(--warn); font-size:13px; line-height:1.8}
+  .hint{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.8}
+  .btn{
+    width:100%; border:0; border-radius:12px; padding:14px; font-family:inherit;
+    font-size:16px; font-weight:800; cursor:pointer; background:var(--accent); color:var(--accent-ink);
+    transition:transform .12s ease, filter .15s ease;
   }
-  .divider{border-top:1px dashed var(--line);margin:20px 0}
-  .note-cust{font-size:.92rem;line-height:1.9;color:var(--ink);background:#fffdf8;border:1px dashed var(--gold);border-radius:4px;padding:12px 14px;text-align:center}
-  .tbar{margin-top:22px;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
-  .tbar-fill{height:100%;width:100%;border-radius:2px;background:linear-gradient(90deg, var(--gold), var(--accent));transition:width 1s linear}
-  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
-  .shake{animation:shake .35s}
-  .expired{text-align:center;padding:10px 0 4px}
-  .expired .x{width:64px;height:64px;margin:0 auto 16px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.8rem}
-  .expired h2{font-family:'Amiri',serif;font-size:1.4rem;margin-bottom:8px}
-  .expired p{font-size:.85rem;color:#7a7060;line-height:1.9}
-  .reminder{margin-top:24px;padding:18px 16px;border-top:1px dashed var(--line)}
-  .reminder .rtext{font-family:'Amiri',serif;font-size:1.15rem;line-height:2.1;color:var(--ink)}
-  .reminder .rsrc{font-size:.72rem;color:var(--gold);margin-top:8px;font-weight:500}
-  .loading{text-align:center;padding:30px 0;color:#7a7060;font-size:.9rem}
-  .fade-out{animation:burn .8s forwards}
-  @keyframes burn{to{opacity:0;filter:blur(6px);transform:translateY(8px)}}
+  .btn:active{transform:scale(.98); filter:brightness(.95)}
+  .btn2{
+    width:100%; border:1px solid var(--line); border-radius:12px; padding:12px; font-family:inherit;
+    font-size:15px; font-weight:800; cursor:pointer; background:var(--card); color:var(--ink); margin-top:8px;
+    transition:transform .12s ease, border-color .15s ease;
+  }
+  .btn2:active{transform:scale(.98)}
+  .btn-danger{border-color:var(--bad); color:var(--bad); background:transparent}
+
+  /* لوحة الإدارة */
+  .admin{
+    border:1px solid var(--line); border-top:3px solid var(--accent);
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  .admin-head{display:flex; align-items:center; gap:10px; margin-bottom:14px}
+  .admin-head .icon{
+    width:38px; height:38px; border-radius:10px; background:rgba(255,179,71,.15);
+    display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0;
+  }
+  .admin-head h3{font-size:15px; color:var(--accent)}
+  .admin-head small{display:block; color:var(--muted); font-size:11px; margin-top:2px}
+  .admin .row{margin-top:10px}
+
+  .list-title{display:flex; justify-content:space-between; align-items:center; margin:18px 4px 10px}
+  .list-title h2{font-size:16px}
+  .list-title span{font-size:13px; color:var(--muted)}
+  .item{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;
+    animation:itemIn .35s ease;
+    transition:opacity .28s ease, transform .28s ease, max-height .28s ease, margin .28s ease, padding .28s ease;
+    overflow:hidden; max-height:90px;
+  }
+  .item.entering{animation:itemPop .45s ease}
+  .item.removing{opacity:0; transform:scale(.9) translateX(12px); max-height:0; margin-bottom:0; padding-top:0; padding-bottom:0; border-width:0}
+  @keyframes itemIn{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+  @keyframes itemPop{ 0%{opacity:0; transform:scale(.92) translateY(6px)} 60%{opacity:1; transform:scale(1.02)} 100%{transform:scale(1)} }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:translateY(0)} }
+  .item .name{font-weight:700; font-size:15px}
+  .item .sub{font-size:12px; color:var(--muted); margin-top:2px}
+  .item .date{font-size:11px; color:var(--muted); margin-top:3px; opacity:.8}
+  .item .amounts{text-align:left}
+  .item .total{font-weight:800; color:var(--accent); font-size:16px}
+  .item .prof{font-size:12px; color:var(--good)}
+  .item button{background:none; border:0; color:var(--bad); font-size:18px; cursor:pointer; margin-right:8px; padding:4px}
+  .summary{
+    background:var(--card2); border:1px dashed var(--accent); border-radius:var(--radius);
+    padding:14px 16px; display:flex; justify-content:space-between; margin-top:12px;
+  }
+  .summary div b{display:block; font-size:20px}
+  .summary div span{font-size:12px; color:var(--muted)}
+  .summary .p b{color:var(--good)}
+  .empty{color:var(--muted); text-align:center; font-size:13px; padding:20px 0}
+  .check{
+    display:flex; align-items:center; gap:10px; background:var(--card2);
+    border:1px solid var(--line); border-radius:12px; padding:12px 14px;
+    font-size:14px; font-weight:700; color:var(--ink); cursor:pointer; margin-bottom:0;
+  }
+  .check input{width:20px; height:20px; accent-color:var(--accent); cursor:pointer}
+
+  /* تنبيهات Toast */
+  #toastBox{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); width:calc(100% - 28px); max-width:480px; display:flex; flex-direction:column; gap:8px; z-index:60; pointer-events:none}
+  .toast{
+    background:var(--card2); border:1px solid var(--line); border-right:4px solid var(--accent);
+    border-radius:12px; padding:12px 14px; font-size:14px; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    animation:toastIn .25s ease; pointer-events:auto;
+  }
+  .toast.success{border-right-color:var(--good)}
+  .toast.error{border-right-color:var(--bad)}
+  .toast.leaving{animation:toastOut .25s ease forwards}
+  @keyframes toastIn{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:translateY(0)} }
+  @keyframes toastOut{ from{opacity:1; transform:translateY(0)} to{opacity:0; transform:translateY(12px)} }
+
+  /* نافذة التأكيد */
+  #confirmOverlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
+    align-items:center; justify-content:center; z-index:70; padding:20px;
+  }
+  #confirmOverlay.show{display:flex; animation:fadeIn .2s ease}
+  .confirm-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; max-width:360px; width:100%; text-align:center;
+  }
+  .confirm-card .ico{font-size:32px; margin-bottom:8px}
+  .confirm-card p{font-size:15px; margin-bottom:16px; line-height:1.7}
+  .confirm-row{display:flex; gap:10px}
+
+  /* تبديل الوضع */
+  .modes{display:flex; background:var(--card2); border-radius:12px; padding:4px; margin-bottom:14px; gap:4px}
+  .modes button{
+    flex:1; border:0; background:transparent; color:var(--muted); font-family:inherit;
+    font-size:13px; font-weight:800; padding:10px 6px; border-radius:9px; cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .modes button.active{background:var(--accent); color:var(--accent-ink)}
+
+  /* مقارنة سريعة */
+  .cmp-add{display:flex; gap:8px; align-items:flex-end}
+  .cmp-add .field{flex:1; margin-bottom:0}
+  .cmp-add button{
+    background:var(--accent); color:var(--accent-ink); border:0; border-radius:12px;
+    width:50px; height:50px; font-size:22px; font-weight:800; cursor:pointer; flex-shrink:0;
+  }
+  .cmp-row{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;
+    animation:itemIn .3s ease;
+  }
+  .cmp-row .cmp-info .name{font-weight:700; font-size:15px}
+  .cmp-row .cmp-info .sub{font-size:12px; color:var(--muted); margin-top:2px}
+  .cmp-row .cmp-total{font-weight:800; color:var(--accent); font-size:16px; text-align:left}
+  .cmp-row .cmp-actions{display:flex; align-items:center; gap:2px}
+  .cmp-row .cmp-actions button{background:none; border:0; font-size:19px; cursor:pointer; padding:4px}
+  .cmp-row .adopt-btn{color:var(--good)}
+  .cmp-row .del-btn{color:var(--bad)}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="head"><h1 id="headTitle">نظام الأقساط</h1><p id="headSub"></p></div>
-  <div class="geo-border"></div>
-  <div class="body" id="app"></div>
+<header>
+  <div>
+    <h1>📱 حاسبة أقساط الهواتف</h1>
+    <p id="subTitle">نسبة الربح الحالية: 50٪ عن كل سنة</p>
+  </div>
+  <button class="gear" onclick="toggleAdmin()" title="إعدادات الإدارة">⚙️</button>
+</header>
+
+<!-- لوحة الإدارة -->
+<div class="card admin" id="adminCard" style="display:none">
+  <div class="admin-head">
+    <div class="icon">🔐</div>
+    <div>
+      <h3>إعدادات الإدارة</h3>
+      <small>تعديل نسبة الربح السنوية المعتمدة في المتجر</small>
+    </div>
+  </div>
+  <div id="adminLock">
+    <div class="field">
+      <label>رمز الإدارة</label>
+      <input type="password" id="pin" placeholder="••••" inputmode="numeric">
+      <div class="field-err" id="pinErr">❌ الرمز غير صحيح، حاول مجدداً</div>
+    </div>
+    <button class="btn" onclick="unlock()">دخول</button>
+  </div>
+  <div id="adminPanel" style="display:none">
+    <div class="field">
+      <label>نسبة الربح السنوية (٪)</label>
+      <input type="number" id="rateInput" inputmode="decimal" min="0" step="1">
+      <div class="field-err" id="rateErr">أدخل نسبة صحيحة أكبر من أو تساوي صفر</div>
+    </div>
+    <div class="row">
+      <div><button class="btn" onclick="saveRate()">💾 حفظ النسبة</button></div>
+      <div><button class="btn2" onclick="lockAdmin()">🔒 قفل</button></div>
+    </div>
+    <div class="hint">النسبة الجديدة تُطبَّق فوراً على كل الحسابات الجديدة. الهواتف المضافة سابقاً تبقى بأرقامها القديمة.</div>
+  </div>
 </div>
-<script>
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-  const k = e.key.toUpperCase();
-  if (e.key === 'F12' || (e.ctrlKey && k === 'U') || (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'J' || k === 'C')) || (e.metaKey && e.altKey && (k === 'I' || k === 'J' || k === 'C')) || (e.metaKey && k === 'U')) { e.preventDefault(); }
-});
-const app = document.getElementById('app');
-let audioCtx = null;
-function ensureAudio(){
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  } catch(e){}
-}
-function playStampThud(){
-  try {
-    if (!audioCtx) return;
-    const t0 = audioCtx.currentTime;
-    const osc1 = audioCtx.createOscillator();
-    const gain1 = audioCtx.createGain();
-    osc1.type = 'triangle';
-    osc1.frequency.setValueAtTime(180, t0);
-    osc1.frequency.exponentialRampToValueAtTime(85, t0 + 0.18);
-    gain1.gain.setValueAtTime(0.3, t0);
-    gain1.gain.exponentialRampToValueAtTime(0.001, t0 + 0.22);
-    osc1.connect(gain1).connect(audioCtx.destination);
-    osc1.start(t0); osc1.stop(t0 + 0.25);
-    const osc2 = audioCtx.createOscillator();
-    const gain2 = audioCtx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(1400, t0);
-    gain2.gain.setValueAtTime(0.05, t0);
-    gain2.gain.exponentialRampToValueAtTime(0.001, t0 + 0.35);
-    osc2.connect(gain2).connect(audioCtx.destination);
-    osc2.start(t0); osc2.stop(t0 + 0.35);
-  } catch(e){}
-}
-function setHead(title, sub){
-  try {
-    const t = document.getElementById('headTitle');
-    const s = document.getElementById('headSub');
-    if (t && title !== undefined) t.textContent = title;
-    if (s && sub !== undefined) s.textContent = sub;
-  } catch(e){}
-}
-let sessionPin = '';
-const REMINDERS = [
-  {
-    "t": "﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا﴾",
-    "s": "سورة النساء – آية 58"
-  },
-  {
-    "t": "﴿فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ﴾",
-    "s": "سورة البقرة – آية 283"
-  },
-  {
-    "t": "﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾",
-    "s": "سورة المائدة – آية 1"
-  },
-  {
-    "t": "﴿وَأَوْفُوا بِالْعَهْدِ ۖ إِنَّ الْعَهْدَ كَانَ مَسْئُولًا﴾",
-    "s": "سورة الإسراء – آية 34"
-  },
-  {
-    "t": "﴿وَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ بِالْقِسْطِ﴾",
-    "s": "سورة الأنعام – آية 152"
-  },
-  {
-    "t": "﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ﴾",
-    "s": "سورة البقرة – آية 188"
-  },
-  {
-    "t": "﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ﴾",
-    "s": "سورة البقرة – آية 280"
-  },
-  {
-    "t": "﴿وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ﴾",
-    "s": "سورة البقرة – آية 280"
-  },
-  {
-    "t": "﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ﴾",
-    "s": "سورة المائدة – آية 2"
-  },
-  {
-    "t": "﴿يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَقُولُوا قَوْلًا سَدِيدًا﴾",
-    "s": "سورة الأحزاب – آية 70"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَطْلُ الْغَنِيِّ ظُلْمٌ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «خَيْرُكُمْ أَحْسَنُكُمْ قَضَاءً»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ»",
-    "s": "رواه البخاري"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ»",
-    "s": "رواه البخاري"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «آيَةُ الْمُنَافِقِ ثَلَاثٌ: إِذَا حَدَّثَ كَذَبَ، وَإِذَا وَعَدَ أَخْلَفَ، وَإِذَا اؤْتُمِنَ خَانَ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «الدِّينُ النَّصِيحَةُ»",
-    "s": "رواه مسلم"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «إِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ، وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى»",
-    "s": "رواه البخاري"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ نَفَّسَ عَنْ مُؤْمِنٍ كُرْبَةً نَفَّسَ اللَّهُ عَنْهُ كُرْبَةً مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ»",
-    "s": "رواه مسلم"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «وَاللَّهُ فِي عَوْنِ الْعَبْدِ مَا كَانَ الْعَبْدُ فِي عَوْنِ أَخِيهِ»",
-    "s": "رواه مسلم"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «كُلُّ الْمُسْلِمِ عَلَى الْمُسْلِمِ حَرَامٌ: دَمُهُ وَمَالُهُ وَعِرْضُهُ»",
-    "s": "رواه مسلم"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «لَا يَحِلُّ مَالُ امْرِئٍ مُسْلِمٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ»",
-    "s": "رواه أحمد"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «التَّاجِرُ الصَّدُوقُ الْأَمِينُ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ»",
-    "s": "رواه الترمذي"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ كَانَتْ لَهُ مَظْلَمَةٌ لِأَخِيهِ فَلْيَتَحَلَّلْهُ مِنْهَا»",
-    "s": "رواه البخاري"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا»",
-    "s": "رواه الترمذي"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ»",
-    "s": "رواه الترمذي"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ أَنْظَرَ مُعْسِرًا أَوْ وَضَعَ عَنْهُ أَظَلَّهُ اللَّهُ فِي ظِلِّهِ»",
-    "s": "رواه مسلم"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ صَدَقَةٌ»",
-    "s": "رواه أحمد"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «كَانَ تَاجِرٌ يُدَايِنُ النَّاسَ، فَإِذَا رَأَى مُعْسِرًا قَالَ لِفِتْيَانِهِ: تَجَاوَزُوا عَنْهُ، فَتَجَاوَزَ اللَّهُ عَنْهُ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «أَدِّ الْأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ، وَلَا تَخُنْ مَنْ خَانَكَ»",
-    "s": "رواه أبو داود"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «الظُّلْمُ ظُلُمَاتٌ يَوْمَ الْقِيَامَةِ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ حَلَفَ عَلَى يَمِينٍ لِيَقْتَطِعَ بِهَا مَالَ امْرِئٍ مُسْلِمٍ لَقِيَ اللَّهَ وَهُوَ عَلَيْهِ غَضْبَانُ»",
-    "s": "متفق عليه"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «إِنَّ التَّاجِرَ يُبْعَثُ يَوْمَ الْقِيَامَةِ فَاجِرًا إِلَّا مَنِ اتَّقَى اللَّهَ وَبَرَّ وَصَدَقَ»",
-    "s": "رواه الترمذي"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «الصُّلْحُ جَائِزٌ بَيْنَ الْمُسْلِمِينَ إِلَّا صُلْحًا حَرَّمَ حَلَالًا أَوْ أَحَلَّ حَرَامًا»",
-    "s": "رواه الترمذي"
-  },
-  {
-    "t": "قال رسول الله ﷺ: «مَنْ لَا يَشْكُرُ النَّاسَ لَا يَشْكُرُ اللَّهَ»",
-    "s": "رواه الترمذي"
-  }
-];
-window.addEventListener('error', function(ev){
-  try {
-    if (document.getElementById('errBox')) return;
-    const box = document.createElement('div');
-    box.id = 'errBox';
-    box.style.cssText = 'margin-top:16px;padding:12px;border:1px solid #c0392b;border-radius:6px;background:#fff3f2;color:#7a1f1f;font-size:.75rem;direction:ltr;text-align:left;word-break:break-word;line-height:1.6';
-    box.innerHTML = '<b>حدث خطأ تقني — صوّر هذا الصندوق وأرسله:</b><br>' + String(ev.message || ev) + '<br><button onclick="location.reload()" style="margin-top:10px;width:auto;padding:8px 14px;background:#7a1f1f;color:#fff;border:none;border-radius:4px;font-size:.8rem">إعادة المحاولة</button>';
-    document.body.appendChild(box);
-  } catch(e){}
-});
-const id = location.hash.slice(1);
-try {
-  if (id) { openCustomer(id); } else { tryRestoreMerchantSession(); }
-} catch(err){
-  window.dispatchEvent(new ErrorEvent('error', { message: 'بدء التشغيل: ' + (err && err.message ? err.message : err) }));
-}
 
-function genToken(){
-  try {
-    const arr = new Uint8Array(20);
-    (window.crypto || window.msCrypto).getRandomValues(arr);
-    return Array.from(arr, b => b.toString(16).padStart(2,'0')).join('');
-  } catch(e){ return 'f' + Date.now().toString(16) + Math.random().toString(16).slice(2); }
-}
-function hasDeviceToken(id){ try { return !!localStorage.getItem('dev:' + id); } catch(e){ return false; } }
-function getDeviceToken(id){
-  const key = 'dev:' + id;
-  try {
-    let t = localStorage.getItem(key);
-    if (!t){ t = genToken(); localStorage.setItem(key, t); }
-    return t;
-  } catch(e){
-    if (!window.__memTok) window.__memTok = {};
-    if (!window.__memTok[id]) window.__memTok[id] = genToken();
-    return window.__memTok[id];
-  }
-}
+<div class="modes">
+  <button id="modeSingleBtn" class="active" onclick="setMode('single')">📱 هاتف واحد</button>
+  <button id="modeCmpBtn" onclick="setMode('cmp')">🔍 مقارنة سريعة</button>
+</div>
 
-async function openCustomer(id){
-  try { if (sessionStorage.getItem('x:' + id) === '1'){ renderGone(); return; } } catch(e){}
-  renderRevealGate(id);
-}
-function renderRevealGate(id){
-  setHead('نظام الأقساط', '');
-  app.innerHTML = `
-    <div class="cust" style="padding:10px 0">
-      <div style="font-size:2.4rem;margin-bottom:6px">🔒</div>
-      <p style="font-size:.92rem;color:#5a5040;line-height:1.9;margin-bottom:18px">اضغط الزر لعرض المبلغ.</p>
-      <button id="revealBtn" onclick="revealAmount('${id}')" style="width:100%">اضغط لعرض المبلغ</button>
-      <p id="revealErr" style="color:var(--accent);font-size:.8rem;text-align:center;margin-top:14px;display:none"></p>
-    </div>`;
-}
-let revealing = false;
-async function revealAmount(id){
-  if (revealing) return;
-  revealing = true;
-  ensureAudio();
-  const btn = document.getElementById('revealBtn');
-  const errEl = document.getElementById('revealErr');
-  if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحميل...'; btn.style.pointerEvents = 'none'; }
-  if (errEl) errEl.style.display = 'none';
-  const token = getDeviceToken(id);
-  try {
-    const res = await fetch('/.netlify/functions/view?id=' + encodeURIComponent(id) + '&t=' + encodeURIComponent(token), {cache:'no-store'});
-    if (res.status === 403){ revealing = false; renderDeviceMismatch(); return; }
-    if (res.status === 410){ markGone(id); renderGone(); return; }
-    if (!res.ok){ revealing = false; if (btn){ btn.disabled=false; btn.textContent='اضغط لعرض المبلغ'; btn.style.pointerEvents=''; } if (errEl){ errEl.textContent='تعذر تحميل الكشف (خطأ ' + res.status + '). حاول مجددًا.'; errEl.style.display='block'; } return; }
-    const d = await res.json();
-    const end = Date.now() + d.left;
-    renderCustomerView(d.a, end, d.m, d.left);
-  } catch(e){
-    revealing = false;
-    if (btn){ btn.disabled = false; btn.textContent = 'اضغط لعرض المبلغ'; btn.style.pointerEvents = ''; }
-    if (errEl){ errEl.textContent = 'لا يوجد اتصال بالإنترنت. حاول مجددًا.'; errEl.style.display = 'block'; }
-  }
-}
-function markGone(id){ try { sessionStorage.setItem('x:' + id, '1'); localStorage.removeItem('dev:' + id); } catch(e){} }
-function renderDeviceMismatch(){
-  setHead('نظام الأقساط', '');
-  app.innerHTML = `
-    <div class="expired">
-      <div class="x">📵</div>
-      <h2>هذا الرابط مخصّص لجهاز آخر</h2>
-      <p>لأمانك، يعمل هذا الرابط على الجهاز الذي فتحه أول مرة فقط.<br>إن كان هذا جهازك الصحيح فعلًا، تواصل مع المحل لطلب رابط جديد.</p>
-    </div>`;
-}
-const STAMP_TEXTS = [
-  ['نظام', 'الأقساط'],
-  ['كشف', 'رسمي'],
-  ['موثّق', 'إلكترونيًا'],
-  ['معتمد', 'من المحل']
-];
-function renderCustomerView(amount, end, note, totalMs){
-  if (Date.now() >= end){ renderGone(); return; }
-  if (!totalMs) totalMs = end - Date.now();
-  setHead('نظام الأقساط', '');
-  const amtStr = Number(amount).toLocaleString('ar');
-  const stampColor = amount > 500 ? '#8a2a2a' : (amount < 50 ? 'var(--ok)' : 'var(--accent)');
-  const st = STAMP_TEXTS[Math.floor(Math.random() * STAMP_TEXTS.length)];
-  app.innerHTML = `
-    <div class="cust" id="custView">
-      <div class="amount"><span id="amtWrite" class="writing"></span><span class="cur">دينار أردني</span></div>
-      ${note ? `<div class="divider"></div><div class="note-cust">${escapeHtml(note)}</div>` : ''}
-      <div class="stamp" id="stamp" style="color:${stampColor}">
-        <svg viewBox="0 0 120 120" width="96" height="96">
-          <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="3"/>
-          <circle cx="60" cy="60" r="46" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <text x="60" y="52" text-anchor="middle" font-family="Amiri, serif" font-size="15" font-weight="700" fill="currentColor">${st[0]}</text>
-          <text x="60" y="74" text-anchor="middle" font-family="Amiri, serif" font-size="15" font-weight="700" fill="currentColor">${st[1]}</text>
-          <path d="M28 88 Q60 100 92 88" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
+<div id="singleMode">
+<div class="card">
+  <div class="row">
+    <div class="field">
+      <label>سعر الهاتف كاش</label>
+      <input type="number" id="cash" placeholder="0" inputmode="decimal" oninput="calc()">
+      <div class="field-err" id="cashErr">أدخل رقماً أكبر من صفر</div>
+    </div>
+    <div class="field">
+      <label>قيمة القسط الشهري</label>
+      <input type="number" id="inst" placeholder="40" inputmode="decimal" oninput="calc()">
+      <div class="field-err" id="instErr">أدخل رقماً أكبر من صفر</div>
+    </div>
+  </div>
+  <label class="check">
+    <input type="checkbox" id="lawyer" onchange="calc()">
+    <span>⚖️ إضافة أتعاب المحامي (15٪ من الإجمالي)</span>
+  </label>
+</div>
+
+<div class="result" id="result" style="display:none">
+  <div class="big" id="bigVal">0</div>
+  <div class="biglabel">عدد الأقساط المطلوبة</div>
+  <div class="stats">
+    <div class="stat"><b id="totalVal">0</b><span>المبلغ الإجمالي</span></div>
+    <div class="stat"><b class="profit" id="profitVal">0</b><span>الربح</span></div>
+    <div class="stat"><b id="durVal">0</b><span>مدة التقسيط</span></div>
+    <div class="stat"><b id="rateVal">0٪</b><span>نسبة الربح الفعلية سنوياً</span></div>
+    <div class="stat" id="feeStat" style="display:none"><b style="color:var(--warn)" id="feeVal">0</b><span>أتعاب المحامي (15٪)</span></div>
+    <div class="stat" id="grandStat" style="display:none"><b id="grandVal">0</b><span>الإجمالي مع الأتعاب</span></div>
+  </div>
+  <div class="hint" id="hint"></div>
+</div>
+
+<div class="result" id="error" style="display:none">
+  <div class="warn" id="errorMsg"></div>
+</div>
+
+<button class="btn" onclick="addPhone()">➕ إضافة الهاتف إلى القائمة</button>
+</div>
+
+<!-- وضع المقارنة السريعة -->
+<div id="cmpMode" style="display:none">
+  <div class="card">
+    <div class="field">
+      <label>سعر الهاتف كاش (مرة واحدة)</label>
+      <input type="number" id="cashCmp" placeholder="0" inputmode="decimal">
+      <div class="field-err" id="cashCmpErr">أدخل رقماً أكبر من صفر</div>
+    </div>
+    <label class="check" style="margin-bottom:12px">
+      <input type="checkbox" id="lawyerCmp">
+      <span>⚖️ إضافة أتعاب المحامي (15٪ من الإجمالي) لكل الصفوف</span>
+    </label>
+    <div class="cmp-add">
+      <div class="field">
+        <label>جرّب قسط</label>
+        <input type="number" id="instCmp" placeholder="مثال: 40" inputmode="decimal"
+               onkeypress="if(event.key==='Enter'){event.preventDefault(); addCompareRow();}">
       </div>
-      <svg viewBox="0 0 60 90" width="44" height="66" style="margin:18px auto 0;display:block">
-        <defs>
-          <clipPath id="clipTop"><polygon points="10,10 50,10 30,45"/></clipPath>
-          <clipPath id="clipBottom"><polygon points="10,80 50,80 30,45"/></clipPath>
-        </defs>
-        <rect id="sandTop" x="10" y="10" width="40" height="35" style="fill:#c9a24a" clip-path="url(#clipTop)"/>
-        <rect id="sandBottom" x="10" y="45" width="40" height="35" style="fill:#c9a24a" clip-path="url(#clipBottom)"/>
-        <path d="M10,10 L50,10 L30,45 L50,80 L10,80 L30,45 Z" fill="none" style="stroke:var(--gold)" stroke-width="2" stroke-linejoin="round"/>
-        <rect x="8" y="6" width="44" height="5" rx="2" style="fill:var(--gold)"/>
-        <rect x="8" y="79" width="44" height="5" rx="2" style="fill:var(--gold)"/>
-      </svg>
-    </div>`;
+      <button onclick="addCompareRow()" title="إضافة للمقارنة">+</button>
+    </div>
+    <div class="field-err" id="instCmpErr">أدخل قسطاً أكبر من الحد الأدنى</div>
+    <div class="hint">اكتب أي رقم قسط واضغط + أو Enter — سيظهر الناتج كصف جديد تحت. جرّب عدة أرقام مثل 40، 50، 60 لمقارنتها، ثم اضغط ✅ بجانب العرض الذي يناسب الزبون لإضافته للقائمة الرسمية.</div>
+  </div>
 
-  ensureAudio();
-  // تأثير خط اليد: كتابة المبلغ رقمًا رقمًا مع قلم
-  const amtEl = document.getElementById('amtWrite');
-  const chars = [...amtStr];
-  let i = 0;
-  function writeNext(){
-    if (i < chars.length){
-      amtEl.textContent += chars[i];
-      i++;
-      setTimeout(writeNext, 140);
+  <div id="cmpList"><div class="empty">لم تُجرَّب أي قيمة قسط بعد</div></div>
+</div>
+
+
+<div class="list-title">
+  <h2>الهواتف المسجلة</h2>
+  <span id="count">0 هاتف</span>
+</div>
+<div id="list"><div class="empty">لم تتم إضافة أي هاتف بعد</div></div>
+
+<div class="summary" id="summary" style="display:none">
+  <div><b id="sumCash">0</b><span>إجمالي الكاش</span></div>
+  <div><b id="sumTotal">0</b><span>إجمالي بالتقسيط</span></div>
+  <div class="p"><b id="sumProfit">0</b><span>إجمالي الأرباح</span></div>
+</div>
+
+<!-- تنبيهات -->
+<div id="toastBox"></div>
+
+<!-- نافذة تأكيد الحذف -->
+<div id="confirmOverlay">
+  <div class="confirm-card">
+    <div class="ico">🗑️</div>
+    <p id="confirmMsg">هل أنت متأكد من حذف هذا الهاتف من القائمة؟</p>
+    <div class="confirm-row">
+      <button class="btn2" onclick="closeConfirm()">إلغاء</button>
+      <button class="btn2 btn-danger" onclick="confirmYes()">حذف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PIN = '1234';   // ← رمز الإدارة، غيّره من هنا
+const LAWYER_RATE = 15;     // نسبة أتعاب المحامي ٪ من الإجمالي
+const STORAGE_KEY = 'shop-state';
+let annualRate = 50;        // نسبة الربح السنوية ٪
+let phones = [];
+let current = null;
+let unlocked = false;
+let lastAddedId = null;
+let confirmCallback = null;
+let compareRows = [];
+let uiMode = 'single';
+
+function fmt(n){ return Number(n.toFixed(2)).toLocaleString('ar-EG'); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function fmtDate(iso){
+  try{ return new Date(iso).toLocaleString('ar-EG', {dateStyle:'short', timeStyle:'short'}); }
+  catch(e){ return ''; }
+}
+function durText(m){
+  const y = Math.floor(m/12), r = m%12;
+  if(y===0) return m + ' شهر';
+  if(r===0) return y + (y===1?' سنة':' سنوات');
+  return y + ' سنة و' + r + ' شهر';
+}
+
+/* ---------- تنبيهات Toast ---------- */
+function showToast(msg, type='success'){
+  const box = document.getElementById('toastBox');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = (type==='success' ? '✅ ' : '⚠️ ') + msg;
+  box.appendChild(t);
+  setTimeout(()=>{
+    t.classList.add('leaving');
+    setTimeout(()=> t.remove(), 250);
+  }, 2600);
+}
+
+/* ---------- نافذة تأكيد الحذف ---------- */
+function askConfirm(msg, onYes){
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = onYes;
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirmOverlay').classList.remove('show');
+  confirmCallback = null;
+}
+function confirmYes(){
+  const cb = confirmCallback;
+  document.getElementById('confirmOverlay').classList.remove('show');
+  confirmCallback = null;
+  if(cb) cb();
+}
+
+/* ---------- التخزين الدائم (localStorage) ---------- */
+async function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ phones, annualRate }));
+  }catch(e){
+    console.error('تعذر الحفظ:', e);
+  }
+}
+async function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const data = JSON.parse(raw);
+      phones = (data.phones || []).map(p => ({
+        ...p,
+        id: p.id || uid(),
+        addedAt: p.addedAt || new Date().toISOString()
+      }));
+      annualRate = (typeof data.annualRate === 'number') ? data.annualRate : 50;
+    }
+  }catch(e){
+    // لا توجد بيانات محفوظة بعد
+  }
+  document.getElementById('subTitle').textContent = 'نسبة الربح الحالية: ' + fmt(annualRate) + '٪ عن كل سنة';
+  render();
+}
+loadState();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+/* ---------- تبديل الوضع ---------- */
+function setMode(m){
+  uiMode = m;
+  document.getElementById('modeSingleBtn').classList.toggle('active', m==='single');
+  document.getElementById('modeCmpBtn').classList.toggle('active', m==='cmp');
+  document.getElementById('singleMode').style.display = m==='single' ? 'block' : 'none';
+  document.getElementById('cmpMode').style.display = m==='cmp' ? 'block' : 'none';
+}
+
+/* ---------- المقارنة السريعة ---------- */
+function calcOffer(cash, inst, lawyerOn){
+  const r = annualRate/100;
+  const minInst = cash*r/12;
+  if(inst <= minInst) return null;
+  const months = Math.ceil(cash / (inst - cash*r/12));
+  const total = inst * months;
+  const profit = total - cash;
+  const fee = lawyerOn ? total * LAWYER_RATE/100 : 0;
+  const grand = total + fee;
+  return { months, total, profit, fee, grand };
+}
+
+function addCompareRow(){
+  const cashInput = document.getElementById('cashCmp');
+  const instInput = document.getElementById('instCmp');
+  const cash = parseFloat(cashInput.value);
+  const inst = parseFloat(instInput.value);
+
+  setFieldError('cashCmp', cashInput.value !== '' && (isNaN(cash) || cash <= 0));
+  if(!cash || cash<=0){
+    showToast('أدخل سعر الكاش أولاً', 'error');
+    cashInput.focus();
+    return;
+  }
+  if(!inst || inst<=0){
+    showToast('أدخل قيمة القسط', 'error');
+    instInput.focus();
+    return;
+  }
+
+  const offer = calcOffer(cash, inst, document.getElementById('lawyerCmp').checked);
+  const errBox = document.getElementById('instCmpErr');
+  if(!offer){
+    errBox.style.display='block';
+    instInput.classList.add('invalid');
+    return;
+  }
+  errBox.style.display='none';
+  instInput.classList.remove('invalid');
+
+  compareRows.unshift({ id: uid(), cash, inst, ...offer });
+  renderCompare();
+  instInput.value='';
+  instInput.focus();
+}
+
+function removeCompareRow(id){
+  compareRows = compareRows.filter(r => r.id !== id);
+  renderCompare();
+}
+
+function adoptCompareRow(id){
+  const r = compareRows.find(x => x.id === id);
+  if(!r) return;
+  const newId = uid();
+  phones.push({
+    id: newId, addedAt: new Date().toISOString(),
+    cash: r.cash, months: r.months, inst: r.inst,
+    total: r.total, profit: r.profit, fee: r.fee, grand: r.grand
+  });
+  lastAddedId = newId;
+  compareRows = compareRows.filter(x => x.id !== id);
+  renderCompare();
+  render();
+  saveState();
+  showToast('تم اعتماد هذا العرض وإضافته للقائمة الرسمية', 'success');
+}
+
+function renderCompare(){
+  const box = document.getElementById('cmpList');
+  if(compareRows.length===0){
+    box.innerHTML = '<div class="empty">لم تُجرَّب أي قيمة قسط بعد</div>';
+    return;
+  }
+  box.innerHTML = compareRows.map(r => `
+    <div class="cmp-row">
+      <div class="cmp-info">
+        <div class="name">قسط ${fmt(r.inst)}</div>
+        <div class="sub">${r.months} قسط · ربح +${fmt(r.profit)}${r.fee>0 ? ' · ⚖️ أتعاب '+fmt(r.fee) : ''}</div>
+      </div>
+      <div class="cmp-total">${fmt(r.grand ?? r.total)}</div>
+      <div class="cmp-actions">
+        <button class="adopt-btn" onclick="adoptCompareRow('${r.id}')" title="اعتماد">✅</button>
+        <button class="del-btn" onclick="removeCompareRow('${r.id}')" title="حذف">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ---------- الإدارة ---------- */
+function toggleAdmin(){
+  const c = document.getElementById('adminCard');
+  c.style.display = c.style.display==='none' ? 'block' : 'none';
+  document.getElementById('pinErr').style.display='none';
+}
+function unlock(){
+  const pinInput = document.getElementById('pin');
+  if(pinInput.value === ADMIN_PIN){
+    unlocked = true;
+    document.getElementById('adminLock').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    document.getElementById('rateInput').value = annualRate;
+    pinInput.value=''; pinInput.classList.remove('invalid');
+    document.getElementById('pinErr').style.display='none';
+  } else {
+    pinInput.classList.add('invalid');
+    document.getElementById('pinErr').style.display='block';
+  }
+}
+function lockAdmin(){
+  unlocked = false;
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('adminLock').style.display='block';
+  document.getElementById('adminCard').style.display='none';
+}
+function saveRate(){
+  const input = document.getElementById('rateInput');
+  const err = document.getElementById('rateErr');
+  const v = parseFloat(input.value);
+  if(isNaN(v) || v < 0){
+    input.classList.add('invalid'); err.style.display='block';
+    return;
+  }
+  input.classList.remove('invalid'); err.style.display='none';
+  annualRate = v;
+  document.getElementById('subTitle').textContent = 'نسبة الربح الحالية: ' + fmt(annualRate) + '٪ عن كل سنة';
+  calc();
+  saveState();
+  showToast('تم حفظ نسبة الربح: ' + fmt(annualRate) + '٪ سنوياً', 'success');
+}
+
+/* ---------- الحساب ---------- */
+function setFieldError(id, show){
+  document.getElementById(id).classList.toggle('invalid', show);
+  document.getElementById(id+'Err').style.display = show ? 'block' : 'none';
+}
+
+function calc(){
+  const cashInput = document.getElementById('cash');
+  const instInput = document.getElementById('inst');
+  const cashRaw = cashInput.value;
+  const instRaw = instInput.value;
+  const cash = parseFloat(cashRaw);
+  const inst = parseFloat(instRaw);
+  const res = document.getElementById('result');
+  const err = document.getElementById('error');
+  res.style.display='none'; err.style.display='none'; current=null;
+
+  // تحقق من صحة المدخلات (رسالة فقط إذا كتب المستخدم قيمة غير صالحة)
+  setFieldError('cash', cashRaw !== '' && (isNaN(cash) || cash <= 0));
+  setFieldError('inst', instRaw !== '' && (isNaN(inst) || inst <= 0));
+
+  if(!cash || cash<=0 || !inst || inst<=0) return;
+
+  const r = annualRate/100;
+  const minInst = cash*r/12;
+  if(inst <= minInst){
+    document.getElementById('errorMsg').textContent =
+      '⚠️ القسط صغير جداً بالنسبة لسعر الهاتف — الربح (' + fmt(annualRate) + '٪ سنوياً) سيتراكم أسرع من السداد. أقل قسط ممكن لهذا السعر: أكبر من ' + fmt(minInst);
+    err.style.display='block';
+    return;
+  }
+
+  const exactMonths = cash / (inst - cash*r/12);
+  const months = Math.ceil(exactMonths);
+  const total = inst * months;
+  const profit = total - cash;
+  const years = months/12;
+  const actualRate = years>0 ? (profit/cash/years)*100 : 0;
+
+  const lawyerOn = document.getElementById('lawyer').checked;
+  const fee = lawyerOn ? total * LAWYER_RATE/100 : 0;
+  const grand = total + fee;
+
+  document.getElementById('bigVal').textContent = months + ' قسط';
+  document.getElementById('totalVal').textContent = fmt(total);
+  document.getElementById('profitVal').textContent = '+' + fmt(profit);
+  document.getElementById('durVal').textContent = durText(months);
+  document.getElementById('rateVal').textContent = fmt(actualRate) + '٪';
+  document.getElementById('feeStat').style.display = lawyerOn ? 'block' : 'none';
+  document.getElementById('grandStat').style.display = lawyerOn ? 'block' : 'none';
+  document.getElementById('feeVal').textContent = '+' + fmt(fee);
+  document.getElementById('grandVal').textContent = fmt(grand);
+  let hintTxt = 'الحساب: ' + fmt(inst) + ' × ' + months + ' قسط = ' + fmt(total) +
+    ' | الربح المستهدف بنسبة ' + fmt(annualRate) + '٪ عن ' + fmt(years) + ' سنة = ' + fmt(cash*r*years);
+  if(lawyerOn){
+    hintTxt += ' | أتعاب المحامي: ' + fmt(total) + ' × 15٪ = ' + fmt(fee) +
+      ' → القسط شامل الأتعاب: ' + fmt(grand/months);
+  }
+  document.getElementById('hint').textContent = hintTxt;
+  res.style.display='block';
+
+  current = { id: uid(), addedAt: new Date().toISOString(), cash, months, inst, total, profit, fee, grand };
+}
+
+/* ---------- القائمة ---------- */
+function addPhone(){
+  if(!current){
+    showToast('أدخل سعر الهاتف وقيمة القسط أولاً', 'error');
+    return;
+  }
+  phones.push({...current});
+  lastAddedId = current.id;
+  render();
+  saveState();
+  showToast('تمت إضافة الهاتف إلى القائمة', 'success');
+}
+
+function removePhone(id){
+  askConfirm('هل أنت متأكد من حذف هذا الهاتف من القائمة؟', () => {
+    const node = document.querySelector('.item[data-id="'+id+'"]');
+    const doRemove = () => {
+      phones = phones.filter(p => p.id !== id);
+      render();
+      saveState();
+      showToast('تم حذف الهاتف من القائمة', 'error');
+    };
+    if(node){
+      node.classList.add('removing');
+      setTimeout(doRemove, 280);
     } else {
-      amtEl.classList.remove('writing');
-      // بعد انتهاء الكتابة، يهبط الختم
-      const stamp = document.getElementById('stamp');
-      if (stamp) setTimeout(()=> { stamp.classList.add('stamped'); playStampThud(); }, 250);
+      doRemove();
     }
-  }
-  setTimeout(writeNext, 300);
+  });
+}
 
-  const sandTop = document.getElementById('sandTop');
-  const sandBottom = document.getElementById('sandBottom');
-  function tick(){
-    const left = end - Date.now();
-    if (left <= 0){ const v = document.getElementById('custView'); if (v) v.classList.add('fade-out'); setTimeout(renderGone, 400); return; }
-    const r = Math.max(0, Math.min(1, left / totalMs));
-    const topH = r * 35, botH = (1 - r) * 35;
-    if (sandTop){ sandTop.setAttribute('y', 45 - topH); sandTop.setAttribute('height', topH); }
-    if (sandBottom){ sandBottom.setAttribute('y', 80 - botH); sandBottom.setAttribute('height', botH); }
-    setTimeout(tick, 1000);
+function render(){
+  const list = document.getElementById('list');
+  document.getElementById('count').textContent = phones.length + ' هاتف';
+  if(phones.length===0){
+    list.innerHTML = '<div class="empty">لم تتم إضافة أي هاتف بعد</div>';
+    document.getElementById('summary').style.display='none';
+    lastAddedId = null;
+    return;
   }
-  tick();
+  list.innerHTML = phones.map((p)=>`
+    <div class="item${p.id===lastAddedId ? ' entering' : ''}" data-id="${p.id}">
+      <div>
+        <div class="name">كاش ${fmt(p.cash)}</div>
+        <div class="sub">${p.months} قسط × ${fmt(p.inst)}${p.fee>0 ? ' · ⚖️ أتعاب '+fmt(p.fee) : ''}</div>
+        <div class="date">🕒 ${fmtDate(p.addedAt)}</div>
+      </div>
+      <div class="amounts">
+        <div class="total">${fmt(p.grand ?? p.total)}</div>
+        <div class="prof">ربح +${fmt(p.profit)}</div>
+      </div>
+      <button onclick="removePhone('${p.id}')">🗑</button>
+    </div>`).join('');
+  lastAddedId = null;
+  const sc = phones.reduce((s,p)=>s+p.cash,0);
+  const sg = phones.reduce((s,p)=>s+(p.grand ?? p.total),0);
+  const sp = phones.reduce((s,p)=>s+p.profit,0);
+  document.getElementById('sumCash').textContent = fmt(sc);
+  document.getElementById('sumTotal').textContent = fmt(sg);
+  document.getElementById('sumProfit').textContent = '+' + fmt(sp);
+  document.getElementById('summary').style.display='flex';
 }
-function renderGone(){
-  const curId = location.hash.slice(1);
-  if (curId) markGone(curId);
-  setHead('نظام الأقساط', '');
-  const r = REMINDERS[Math.floor(Math.random() * REMINDERS.length)];
-  app.innerHTML = `
-    <div class="expired">
-      <div class="x">✕</div>
-      <h2>هذا الرابط لم يعد متاحًا</h2>
-      <p>يرجى طلب رابط جديد من المحل.</p>
-      <div class="reminder"><div class="rtext">${r.t}</div><div class="rsrc">${r.s}</div></div>
-    </div>`;
-}
-function tryRestoreMerchantSession(){
-  try {
-    const raw = localStorage.getItem('mses');
-    if (raw) {
-      const s = JSON.parse(raw);
-      if (s && s.p && s.t && (Date.now() - s.t < 86400000)) {
-        sessionPin = s.p; renderMerchant(); return;
-      } else {
-        localStorage.removeItem('mses');
-      }
-    }
-  } catch(e){}
-  renderLock();
-}
-function merchantLogout(){
-  try { localStorage.removeItem('mses'); } catch(e){}
-  sessionPin = '';
-  renderLock();
-}
-function renderLock(){
-  setHead(undefined, 'صفحة خاصة بالمحل');
-  app.innerHTML = `
-    <label>أدخل الرمز السري</label>
-    <div style="position:relative">
-      <input id="pin" type="password" inputmode="numeric" autocomplete="off" style="text-align:center;letter-spacing:8px;font-size:1.4rem;padding-left:44px" maxlength="30">
-      <button type="button" onclick="togglePin()" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);width:auto;margin:0;padding:6px 10px;background:transparent;color:var(--gold);border:none;font-size:1.1rem">👁</button>
-    </div>
-    <div id="pinErr" style="color:var(--accent);font-size:.8rem;margin-top:8px;display:none"></div>
-    <button id="pinBtn" onclick="checkPin()">دخول</button>`;
-  const pin = document.getElementById('pin');
-  pin.focus();
-  pin.addEventListener('keydown', e => { if(e.key === 'Enter') checkPin(); });
-}
-function togglePin(){
-  const pin = document.getElementById('pin');
-  if (!pin) return;
-  pin.type = pin.type === 'password' ? 'text' : 'password';
-}
-async function checkPin(){
-  const err = document.getElementById('pinErr');
-  const btn = document.getElementById('pinBtn');
-  const pinEl = document.getElementById('pin');
-  const val = pinEl.value;
-  if (!val) return;
-  btn.disabled = true; btn.textContent = 'جارٍ التحقق...';
-  try {
-    const res = await fetch('/.netlify/functions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin: val, check: true}) });
-    btn.disabled = false; btn.textContent = 'دخول';
-    if (res.ok){ sessionPin = val; try { localStorage.setItem('mses', JSON.stringify({p: val, t: Date.now()})); } catch(e){} renderMerchant(); }
-    else if (res.status === 429){ err.textContent = 'محاولات كثيرة. حاول بعد 5 دقائق'; err.style.display = 'block'; shakePin(pinEl); }
-    else { err.textContent = 'الرمز غير صحيح'; err.style.display = 'block'; pinEl.value = ''; shakePin(pinEl); pinEl.focus(); }
-  } catch(e){ btn.disabled = false; btn.textContent = 'دخول'; err.textContent = 'تعذر الاتصال بالخادم'; err.style.display = 'block'; }
-}
-function shakePin(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
-function renderMerchant(){
-  setHead(undefined, 'نظام الأقساط');
-  app.innerHTML = `
-    <label>المبلغ المتبقي (دينار أردني)</label>
-    <input id="camount" type="number" inputmode="decimal" placeholder="0" min="0.01" max="1000000" step="0.01">
-    <label>ملاحظة للزبون (اختياري)</label>
-    <input id="cnote" placeholder="مثال: القسط القادم يوم 15 من الشهر" maxlength="120">
-    <label>مدة العرض</label>
-    <select id="cmin"><option value="5">5 دقائق</option><option value="10">10 دقائق</option><option value="30" selected>30 دقيقة</option><option value="60">ساعة واحدة</option><option value="720">12 ساعة</option></select>
-    <button id="mkBtn" onclick="makeLink()">إنشاء الرابط</button>
-    <div class="linkbox" id="lb">
-      <div class="url" id="url" onclick="selectUrl(this)" title="اضغط لتحديد الرابط"></div>
-      <div id="confirmSettings" style="font-size:.78rem;color:var(--ok);font-weight:500;margin-bottom:10px;text-align:center"></div>
-      <button class="copybtn" onclick="copyLink()">نسخ الرابط لإرساله للزبون</button>
-      <button class="wabtn" onclick="shareWhatsApp()">إرسال مباشرة عبر واتساب</button>
-      <button class="newbtn" onclick="checkOpened()" id="checkBtn">🔍 هل فتح الزبون الرابط؟</button>
-      <div id="openStatus" style="text-align:center;font-size:.82rem;margin-top:8px;font-weight:500"></div>
-      <button class="newbtn" onclick="resetForm()">إنشاء رابط جديد</button>
-      <div class="hint">🔒 الرابط يعمل بلا حدود على جهاز الزبون الذي يفتحه أولًا فقط، طوال مدة العرض. لن يعمل إن أُرسل لجهاز آخر. يُحذف المبلغ نهائيًا من قاعدة البيانات عند انتهاء المدة.<br>💡 تذكير: بعد انتهاء صلاحية الكشف، يُستحسن حذف رسالة الرابط من محادثة واتساب لتنظيم المحادثة.</div>
-    </div>
-    <div style="text-align:center;margin-top:18px">
-      <a href="#" onclick="merchantLogout(); return false;" style="font-size:.78rem;color:#9a8f78;text-decoration:none">🔓 خروج من صفحة المحل</a>
-    </div>`;
-}
-async function checkOpened(){
-  if (!currentLinkId) return;
-  const btn = document.getElementById('checkBtn');
-  const out = document.getElementById('openStatus');
-  if (btn){ btn.disabled = true; btn.textContent = 'جارٍ التحقق...'; }
-  try {
-    const res = await fetch('/.netlify/functions/status', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin: sessionPin, id: currentLinkId }) });
-    if (btn){ btn.disabled = false; btn.textContent = '🔍 هل فتح الزبون الرابط؟'; }
-    if (!res.ok){ if (out){ out.textContent = 'تعذر التحقق الآن'; out.style.color = 'var(--accent)'; } return; }
-    const s = await res.json();
-    if (out){
-      if (!s.exists){ out.textContent = '⌛ انتهت صلاحية الرابط'; out.style.color = 'var(--gold)'; }
-      else if (s.opened){ out.textContent = '✅ نعم، فتح الزبون الرابط'; out.style.color = 'var(--ok)'; }
-      else { out.textContent = '⏳ لم يُفتح بعد'; out.style.color = 'var(--gold)'; }
-    }
-  } catch(e){
-    if (btn){ btn.disabled = false; btn.textContent = '🔍 هل فتح الزبون الرابط؟'; }
-    if (out){ out.textContent = 'تعذر الاتصال بالخادم'; out.style.color = 'var(--accent)'; }
-  }
-}
-function resetForm(){
-  document.getElementById('camount').value = '';
-  document.getElementById('cnote').value = '';
-  generated = '';
-  currentLinkId = '';
-  const os = document.getElementById('openStatus'); if (os) os.textContent = '';
-  document.getElementById('lb').classList.remove('show');
-  document.getElementById('camount').focus();
-}
-let generated = '';
-let currentLinkId = '';
-async function makeLink(){
-  const raw = document.getElementById('camount').value.trim();
-  const amount = Number(raw);
-  if (!raw || !isFinite(amount)){ alert('أدخل مبلغًا صحيحًا'); return; }
-  if (amount <= 0){ alert('المبلغ يجب أن يكون أكبر من صفر'); return; }
-  if (amount > 1000000){ alert('المبلغ يتجاوز الحد المسموح'); return; }
-  if (amount > 1000){
-    const ok = confirm('المبلغ ' + amount.toLocaleString('ar') + ' دينار كبير نسبيًا — هل أنت متأكد أنه صحيح؟');
-    if (!ok) return;
-  }
-  const btn = document.getElementById('mkBtn');
-  btn.disabled = true; btn.textContent = 'جارٍ الإنشاء...';
-  try {
-    const res = await fetch('/.netlify/functions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pin: sessionPin, amount: amount, note: document.getElementById('cnote').value.trim(), minutes: parseInt(document.getElementById('cmin').value) }) });
-    btn.disabled = false; btn.textContent = 'إنشاء الرابط';
-    if (!res.ok){ if (res.status === 401){ alert('انتهت الجلسة، أعد الدخول'); location.reload(); return; } alert('تعذر إنشاء الرابط، حاول مجددًا'); return; }
-    const out = await res.json();
-    generated = location.origin + '/#' + out.id;
-    currentLinkId = out.id;
-    document.getElementById('url').textContent = generated;
-    const minTxt = out.minutes >= 60 ? (out.minutes / 60) + ' ساعة' : out.minutes + ' دقيقة';
-    const expiryClock = new Date(Date.now() + out.minutes * 60000).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
-    const refCode = out.id.slice(-4).toUpperCase();
-    document.getElementById('confirmSettings').innerHTML = 'تم الإنشاء — المدة: ' + minTxt + ' (ينتهي حوالي الساعة ' + expiryClock + ') | يعمل على جهاز الزبون فقط<br><span style="font-weight:700">الرقم المرجعي: #' + refCode + '</span>';
-    const os = document.getElementById('openStatus'); if (os) os.textContent = '';
-    document.getElementById('lb').classList.add('show');
-  } catch(e){ btn.disabled = false; btn.textContent = 'إنشاء الرابط'; alert('تعذر الاتصال بالخادم'); }
-}
-function copyLink(){
-  const done = () => { const b = document.querySelector('.copybtn'); b.textContent = '✓ تم النسخ'; setTimeout(()=> b.textContent = 'نسخ الرابط لإرساله للزبون', 2000); };
-  const fallback = () => { const ta = document.createElement('textarea'); ta.value = generated; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.focus(); ta.select(); try { document.execCommand('copy'); done(); } catch(e){ alert('انسخ الرابط يدويًا من المربع أعلاه'); } document.body.removeChild(ta); };
-  if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(generated).then(done).catch(fallback); } else { fallback(); }
-}
-function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponent('كشف المبلغ المتبقي:\n' + generated), '_blank'); }
-function selectUrl(el){ const range = document.createRange(); range.selectNodeContents(el); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 </script>
 </body>
 </html>
